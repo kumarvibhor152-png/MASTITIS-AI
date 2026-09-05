@@ -1,12 +1,12 @@
-# 🐄 MastiTrack AI — Pashu Swasthya Dashboard
-### Smart India Hackathon 2024 | Problem Statement #109
+# 🐄 Mastitis AI — Pashu Swasthya Dashboard
+### Smart India Hackathon 2026 | Problem Statement #109
 ### AI-Based Predictive Modelling for Early Forecasting of Bovine Mastitis
 
 ---
 
 ## 🌟 Project Overview
 
-MastiTrack AI is a farmer-friendly, multilingual web dashboard that uses Artificial Intelligence to predict the risk of **Bovine Mastitis** early — before symptoms become severe. It empowers Indian dairy farmers with actionable insights to protect their cattle and maximize milk yield.
+Mastitis AI is a farmer-friendly, multilingual web dashboard that uses Artificial Intelligence to predict the risk of **Bovine Mastitis** early — before symptoms become severe. It empowers Indian dairy farmers with actionable insights to protect their cattle and maximize milk yield.
 
 ### Key Features
 - 🤖 **AI Risk Prediction** — XGBoost model with 3-tier risk classification (Low/Medium/High)
@@ -40,7 +40,7 @@ MastiTrack AI is a farmer-friendly, multilingual web dashboard that uses Artific
 - Node.js 18+
 - Python 3.11+
 - MongoDB Atlas account (free tier)
-- MSG91 account for OTP SMS
+  
 
 ### 1. Clone & Setup
 
@@ -115,12 +115,6 @@ Open http://localhost:5173 🎉
 3. Create database user
 4. Whitelist IP: `0.0.0.0/0` (allow all for Railway)
 5. Get connection string → add to backend `.env`
-
-### OTP → MSG91 Setup
-
-1. Create account at [msg91.com](https://msg91.com)
-2. Create OTP template: `Your MastiTrack AI OTP is {{otp}}. Valid for 5 minutes.`
-3. Get Auth Key + Template ID → add to backend `.env`
 
 ---
 
