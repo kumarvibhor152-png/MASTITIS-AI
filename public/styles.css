@@ -1,0 +1,847 @@
+/* ==========================================================================
+   DhenuRakshak AI — Farmer-Centric Stylesheet
+   Smart India Hackathon 2024 | Problem Statement 109
+   AI-Based Predictive Modelling for Early Forecasting of Bovine Mastitis
+   ========================================================================== */
+
+:root {
+  /* Precision Dairy Agritech Palette */
+  --c-primary-dark: #022c22;   /* Deep Evergreen */
+  --c-primary: #064e3b;        /* Forest Emerald */
+  --c-primary-light: #059669;  /* Vibrant Meadow Green */
+  --c-primary-soft: #ecfdf5;   /* Soft Mint Tint */
+
+  --c-harvest-dark: #78350f;
+  --c-harvest: #b45309;
+  --c-harvest-light: #d97706;
+  --c-harvest-soft: #fef3c7;
+
+  /* Mastitis Clinical Risk Indicators */
+  --c-safe: #059669;           /* Green: Healthy Baseline */
+  --c-safe-bg: #ecfdf5;
+  --c-safe-border: #a7f3d0;
+
+  --c-warning: #d97706;        /* Amber: Subclinical 48-72h */
+  --c-warning-bg: #fffbeb;
+  --c-warning-border: #fde68a;
+
+  --c-danger: #e11d48;         /* Rose Crimson: Acute Clinical Urgent */
+  --c-danger-bg: #fff1f2;
+  --c-danger-border: #fecdd3;
+
+  /* Neutral tones */
+  --bg-page: #f8fafc;
+  --bg-card: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-card: #e2e8f0;
+  --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.04);
+
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Sunlight High-Contrast Mode for outdoor dairy barn use */
+body.sunlight-mode {
+  --bg-page: #000000;
+  --bg-card: #121212;
+  --text-main: #ffffff;
+  --text-muted: #e0e0e0;
+  --border-card: #ffcc00;
+  --c-primary: #00e676;
+  --c-harvest: #ffd54f;
+  --c-harvest-soft: #262626;
+  --c-safe-bg: #003314;
+  --c-warning-bg: #402000;
+  --c-danger-bg: #400005;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+/* ─── Top Header Bar ──────────────────────────────────────────────────────── */
+.app-header {
+  background: linear-gradient(135deg, var(--c-primary-dark) 0%, var(--c-primary) 100%);
+  color: #ffffff;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-logo-icon {
+  font-size: 32px;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 6px 10px;
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.brand-subtitle {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  color: var(--c-harvest-light);
+  font-weight: 500;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ─── Language Selector & Controls ────────────────────────────────────────── */
+.lang-select, .mode-toggle-btn, .sun-toggle-btn {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.lang-select:hover, .mode-toggle-btn:hover, .sun-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.lang-select option {
+  color: #1f2937;
+  background: #ffffff;
+}
+
+/* Active Mode Pill */
+.mode-badge {
+  background: var(--c-harvest);
+  color: #1b4332;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* ─── Layout Shell ────────────────────────────────────────────────────────── */
+.app-container {
+  display: flex;
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  gap: 20px;
+}
+
+/* Desktop Sidebar */
+.desktop-nav {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid var(--border-card);
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  border-color: var(--c-primary-light);
+  background: var(--c-primary-soft);
+  color: var(--c-primary-dark);
+}
+
+.nav-link.active {
+  background: var(--c-primary);
+  color: #ffffff;
+  border-color: var(--c-primary);
+  box-shadow: 0 4px 10px rgba(45, 106, 79, 0.25);
+}
+
+.nav-link .nav-icon {
+  font-size: 1.25rem;
+}
+
+/* Main Content Area */
+.main-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 70px; /* space for mobile nav */
+}
+
+/* ─── Cards & Grid System ─────────────────────────────────────────────────── */
+.kisan-card {
+  background: var(--bg-card);
+  border-radius: 16px;
+  border: 1px solid var(--border-card);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+.card-header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--c-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* ─── Banner & Notice ─────────────────────────────────────────────────────── */
+.sih-banner {
+  background: linear-gradient(135deg, #fefae0 0%, #faedcd 100%);
+  border: 1.5px solid var(--c-harvest);
+  border-radius: 14px;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #7f4f24;
+}
+
+.sih-badge {
+  background: var(--c-harvest-dark);
+  color: #ffffff;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Stat Counter Cards ──────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--border-card);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--c-primary);
+}
+
+.stat-box.stat-danger::before { background: var(--c-danger); }
+.stat-box.stat-warning::before { background: var(--c-warning); }
+.stat-box.stat-safe::before { background: var(--c-safe); }
+.stat-box.stat-gold::before { background: var(--c-harvest-dark); }
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.stat-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ─── Pulsing Status Badges ───────────────────────────────────────────────── */
+.badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.badge-safe {
+  background: var(--c-safe-bg);
+  color: var(--c-safe);
+  border: 1px solid var(--c-safe-border);
+}
+
+.badge-warning {
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
+  border: 1px solid var(--c-warning-border);
+}
+
+.badge-danger {
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
+  border: 1px solid var(--c-danger-border);
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: pulse-ring 1.8s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 0.4; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* ─── Dhenu Vaani Voice Button ────────────────────────────────────────────── */
+.btn-dhenu-vaani {
+  background: linear-gradient(135deg, #bc6c25 0%, #dda15e 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 24px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(188, 108, 37, 0.3);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-dhenu-vaani:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(188, 108, 37, 0.4);
+}
+
+.btn-dhenu-vaani.speaking {
+  animation: speech-pulse 1s infinite alternate;
+  background: #b7521e;
+}
+
+@keyframes speech-pulse {
+  from { box-shadow: 0 0 4px #dda15e; }
+  to { box-shadow: 0 0 16px #bc6c25; }
+}
+
+/* ─── Udder 4-Quarter Visualizer (Anatomical Heatmap) ─────────────────────── */
+.udder-anatomy-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: var(--c-harvest-soft);
+  border: 1.5px solid var(--c-harvest);
+  border-radius: 16px;
+}
+
+.udder-cow-rear {
+  position: relative;
+  width: 280px;
+  height: 240px;
+  background: #ffffff;
+  border-radius: 40px 40px 100px 100px;
+  border: 3px solid #d4a373;
+  box-shadow: inset 0 4px 12px rgba(0,0,0,0.06);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 12px;
+  padding: 24px 20px 36px;
+}
+
+.teat-quarter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  border-radius: 20px;
+  padding: 8px 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.teat-quarter:hover {
+  transform: scale(1.04);
+}
+
+.teat-quarter.q-healthy {
+  background: #e8f5e9;
+  border-color: #4caf50;
+  color: #1b5e20;
+}
+
+.teat-quarter.q-warning {
+  background: #fff3e0;
+  border-color: #ff9800;
+  color: #e65100;
+  animation: pulse-ring 2s infinite;
+}
+
+.teat-quarter.q-critical {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #b71c1c;
+  animation: pulse-ring 1s infinite;
+}
+
+.teat-nipple-indicator {
+  width: 18px;
+  height: 22px;
+  background: currentColor;
+  border-radius: 6px 6px 12px 12px;
+  margin-top: 4px;
+}
+
+.teat-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.teat-ec-val {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* ─── Buttons & Touch Targets ─────────────────────────────────────────────── */
+.btn-primary {
+  background: var(--c-primary);
+  color: #ffffff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--c-primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1.5px solid var(--border-card);
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--c-primary);
+}
+
+.btn-sos {
+  background: linear-gradient(135deg, #d62828 0%, #b71c1c 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 10px rgba(214, 40, 40, 0.35);
+}
+
+.btn-sos:hover {
+  background: #990000;
+}
+
+/* ─── Cattle Herd Grid ────────────────────────────────────────────────────── */
+.cattle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.cow-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  border: 1.5px solid var(--border-card);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.cow-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--c-primary-light);
+}
+
+.cow-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cow-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cow-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--c-harvest-soft);
+  border: 1px solid var(--c-harvest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.cow-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.cow-tag {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.cow-metrics-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: var(--bg-page);
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.cow-metric-title {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.cow-metric-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+/* ─── AI Prediction Form & Inputs ─────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form-input, .form-select {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-card);
+  font-size: 0.95rem;
+  background: var(--bg-card);
+  color: var(--text-main);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--c-primary);
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.preset-btn {
+  background: var(--bg-page);
+  border: 1px solid var(--border-card);
+  padding: 8px 14px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover {
+  background: var(--c-primary-soft);
+  border-color: var(--c-primary);
+}
+
+/* ─── Explainable AI (SHAP Style Feature Impact) ──────────────────────────── */
+.shap-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.shap-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.shap-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.shap-bar-bg {
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.shap-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.4s ease;
+}
+
+.shap-bar-fill.pos { background: #e76f51; }
+.shap-bar-fill.pos-severe { background: #d62828; }
+.shap-bar-fill.neg { background: #2d6a4f; }
+
+/* ─── ICAR Phytotherapy Herbal Recipe Box ─────────────────────────────────── */
+.herbal-recipe-box {
+  background: #fdf8eb;
+  border: 1.5px solid #dda15e;
+  border-radius: 14px;
+  padding: 16px;
+  margin-top: 14px;
+}
+
+.herbal-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #7f4f24;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ingredient-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.ingredient-pill {
+  background: #ffffff;
+  border: 1px solid #d4a373;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #5c3a16;
+}
+
+/* ─── IoT Milking Parlor Live Canvas ──────────────────────────────────────── */
+.iot-canvas-wrap {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  background: #0f172a;
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+canvas#iotChart {
+  width: 100%;
+  height: 100%;
+}
+
+.iot-telemetry-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #38bdf8;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.78rem;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+/* ─── Mobile Bottom Navigation ────────────────────────────────────────────── */
+.mobile-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-card);
+  padding: 8px 12px;
+  z-index: 100;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  justify-content: space-around;
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mobile-nav-item.active {
+  color: var(--c-primary);
+}
+
+.mobile-nav-item .m-icon {
+  font-size: 1.35rem;
+}
+
+/* ─── Responsive Media Queries ────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .desktop-nav {
+    display: none;
+  }
+  .mobile-bottom-nav {
+    display: flex;
+  }
+  .app-container {
+    padding: 10px;
+  }
+  .brand-title {
+    font-size: 1.05rem;
+  }
+  .brand-subtitle {
+    display: none;
+  }
+  .sih-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

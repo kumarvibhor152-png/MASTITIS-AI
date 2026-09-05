@@ -1,0 +1,49 @@
+{
+  "version": "1.0.0",
+  "n_samples": 1500,
+  "accuracy_xgb": 0.8633,
+  "accuracy_rf": 0.8733,
+  "feature_names": [
+    "milk_yield",
+    "scc",
+    "body_temp",
+    "conductivity",
+    "udder_swelling",
+    "behavior_change",
+    "days_in_milk",
+    "previous_mastitis",
+    "quarter_affected",
+    "milk_color_score"
+  ],
+  "continuous_features": [
+    "milk_yield",
+    "scc",
+    "body_temp",
+    "conductivity",
+    "days_in_milk"
+  ],
+  "discrete_features": [
+    "udder_swelling",
+    "behavior_change",
+    "previous_mastitis",
+    "quarter_affected",
+    "milk_color_score"
+  ],
+  "class_names": [
+    "LOW",
+    "MEDIUM",
+    "HIGH"
+  ],
+  "global_shap_importance": {
+    "milk_yield": 0.30759936571121216,
+    "scc": 0.8551146388053894,
+    "body_temp": 0.3389815092086792,
+    "conductivity": 0.6510151624679565,
+    "udder_swelling": 0.17142508924007416,
+    "behavior_change": 0.09559271484613419,
+    "days_in_milk": 0.25928932428359985,
+    "previous_mastitis": 0.26169058680534363,
+    "quarter_affected": 0.07684018462896347,
+    "milk_color_score": 0.14247667789459229
+  }
+}

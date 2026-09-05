@@ -1,0 +1,77 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: '#064e3b',
+        'primary-light': '#059669',
+        'primary-dark': '#022c22',
+        accent: '#0d9488',
+        'accent-light': '#14b8a6',
+        'accent-soft': '#ccfbf1',
+        light: '#6ee7b7',
+        'light-2': '#d1fae5',
+        'light-3': '#ecfdf5',
+        brown: '#78350f',
+        'brown-light': '#92400e',
+        warm: '#b45309',
+        'warm-light': '#d97706',
+        danger: '#e11d48',
+        'danger-light': '#f43f5e',
+        'danger-bg': '#fff1f2',
+        warning: '#d97706',
+        'warning-light': '#f59e0b',
+        'warning-bg': '#fffbeb',
+        safe: '#059669',
+        'safe-bg': '#ecfdf5',
+        bg: '#f8fafc',
+        'bg-dark': '#091310',
+        card: '#ffffff',
+        'card-dark': '#11221b',
+        'text-main': '#0f172a',
+        'text-soft': '#475569',
+        'text-muted': '#94a3b8',
+      },
+      fontFamily: {
+        sans: ['"Plus Jakarta Sans"', '"DM Sans"', 'system-ui', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', '"DM Sans"', 'system-ui', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      borderRadius: {
+        lg: '0.625rem',
+        xl: '0.875rem',
+        '2xl': '1.125rem',
+        '3xl': '1.5rem',
+      },
+      boxShadow: {
+        card: '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
+        'card-hover': '0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04)',
+        subtle: '0 2px 8px -2px rgba(15, 23, 42, 0.06)',
+        glow: '0 0 24px -4px rgba(16, 185, 129, 0.25)',
+        'bottom-nav': '0 -4px 20px -2px rgba(15, 23, 42, 0.06)',
+      },
+      animation: {
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-soft': 'bounce 2s infinite',
+        'fade-in': 'fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+        'slide-up': 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(12px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+      },
+    },
+  },
+  plugins: [],
+}

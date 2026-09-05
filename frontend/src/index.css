@@ -1,0 +1,274 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-primary: #064e3b;
+  --c-primary-light: #059669;
+  --c-accent: #0d9488;
+  --c-safe: #059669;
+  --c-warning: #d97706;
+  --c-danger: #e11d48;
+  --c-bg: #f8fafc;
+  --c-surface: #ffffff;
+  --c-border: #e2e8f0;
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-family: var(--font-sans);
+  background-color: var(--c-bg);
+  color: #0f172a;
+  scroll-behavior: smooth;
+  overscroll-behavior-y: none;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--c-bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Range slider custom styling */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+  outline: none;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #059669;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(5, 150, 105, 0.4);
+  transition: transform 0.15s ease;
+}
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Shimmer Loading Skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+/* Glassmorphism & Surface Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-panel-dark {
+  background: rgba(17, 34, 27, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(31, 61, 48, 0.7);
+}
+
+/* Metric Display */
+.metric-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Component utilities */
+@layer components {
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-light text-white font-semibold rounded-xl py-2.5 px-5 active:scale-[0.98] transition-all duration-150 shadow-sm hover:shadow flex items-center justify-center gap-2;
+  }
+  .btn-secondary {
+    @apply bg-white hover:bg-slate-50 text-slate-700 font-semibold rounded-xl py-2.5 px-5 border border-slate-200 active:scale-[0.98] transition-all duration-150 shadow-sm flex items-center justify-center gap-2;
+  }
+  .btn-danger {
+    @apply bg-danger hover:bg-danger-light text-white font-semibold rounded-xl py-2.5 px-5 active:scale-[0.98] transition-all duration-150 shadow-sm flex items-center justify-center gap-2;
+  }
+  .card-premium {
+    @apply bg-white rounded-xl border border-slate-200/80 shadow-card hover:shadow-card-hover transition-all duration-200;
+  }
+  .input-field {
+    @apply w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary bg-white text-slate-900 transition-all;
+  }
+}
+
+/* ==========================================================================
+   Dark Mode Styles
+   ========================================================================== */
+html.dark {
+  color-scheme: dark;
+  --c-bg: #091310;
+  --c-surface: #11221b;
+  --c-border: #1e3a2f;
+}
+
+html.dark body,
+html.dark #root {
+  background-color: #091310;
+  color: #f1f5f9;
+}
+
+.dark .bg-white {
+  background-color: #11221b !important;
+  border-color: #1e3a2f !important;
+  color: #f1f5f9;
+}
+
+.dark .card-premium,
+.dark .card {
+  background-color: #11221b !important;
+  border-color: #1e3a2f !important;
+  color: #f1f5f9;
+}
+
+.dark .bg-slate-50,
+.dark .bg-gray-50 {
+  background-color: #0d1a15 !important;
+}
+
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-gray-800 {
+  color: #f8fafc !important;
+}
+
+.dark .text-slate-600,
+.dark .text-gray-600,
+.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-slate-400,
+.dark .text-gray-400 {
+  color: #64748b !important;
+}
+
+.dark .border-slate-200,
+.dark .border-gray-200,
+.dark .border-gray-100 {
+  border-color: #1e3a2f !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #0d1a15 !important;
+  border-color: #1e3a2f !important;
+  color: #f8fafc !important;
+}
+
+.dark .skeleton {
+  background: linear-gradient(90deg, #11221b 25%, #183327 50%, #11221b 75%) !important;
+  background-size: 200% 100%;
+}
+
+/* ==========================================================================
+   Google Translate Seamless Clean Display & Complete Banner Hiding
+   ========================================================================== */
+.goog-te-banner-frame,
+.goog-te-banner-frame.skiptranslate,
+iframe.goog-te-banner-frame,
+iframe.skiptranslate,
+iframe[class*="skiptranslate"],
+iframe[class*="VIpgJd"],
+iframe[src*="translate.google"],
+iframe[src*="translate.googleapis"],
+div.skiptranslate:not(#google_translate_element *),
+[class*="VIpgJd-ZVi9od"],
+[class*="VIpgJd"],
+#goog-gt-tt,
+[id*="goog-gt-"],
+.goog-te-balloon-frame,
+.goog-tooltip,
+.goog-tooltip:hover,
+.goog-te-menu-frame {
+  display: none !important;
+  visibility: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  border: none !important;
+}
+
+/* Prevent Google Translate from pushing the webpage down by 40px */
+html {
+  top: 0px !important;
+  margin-top: 0px !important;
+}
+
+body {
+  top: 0px !important;
+  position: static !important;
+  margin-top: 0px !important;
+}
+
+/* Remove yellow/colored hover highlight on translated text */
+.goog-text-highlight {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Keep the Google Translate mounting tag completely off-screen and invisible */
+#google_translate_element {
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+
