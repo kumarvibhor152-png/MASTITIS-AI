@@ -1,5 +1,5 @@
 /**
- * app.js — DhenuRakshak AI (MastiTrack) Core Client Application
+ * app.js — LactoGuard Core Client Application
  * Smart India Hackathon 2024 | Problem Statement 109
  * AI-Based Predictive Modelling for Early Forecasting of Bovine Mastitis
  */
@@ -24,10 +24,10 @@
   };
 
   // Default demo user if none exists
-  if (!state.user) {
+  if (!state.user || (state.user.name && (state.user.name.includes("Ramesh") || state.user.name.includes("Rajesh")))) {
     state.user = {
       id: "kisan-01",
-      name: "Kisan Ramesh Patel (रमेश भाई)",
+      name: "Kisan Kundan Pal (कुंदन पाल)",
       phone: "9876543210",
       farm_name: "Surabhi Gausansthan (सुरभि गोशाला)",
       cattle_count: 6,
@@ -244,7 +244,7 @@
     }
 
     const appNameEl = document.getElementById("headerAppName");
-    if (appNameEl) appNameEl.innerText = t("appName", "MASTITIS AI");
+    if (appNameEl) appNameEl.innerText = t("appName", "LactoGuard");
 
     const appTaglineEl = document.getElementById("headerAppTagline");
     if (appTaglineEl) appTaglineEl.innerText = t("appTagline", "AI Early Warning for Bovine Mastitis");
@@ -537,7 +537,7 @@
         const spoken =
           state.lang === "hi"
             ? "नमस्ते किसान भाई! धेनुरक्षक एआई में आपका स्वागत है। आपके झुंड में कुल छह पशु हैं। कामधेनु गाय में दाएँ पिछले थन में सबक्लिनिकल थनैला के प्रारंभिक लक्षण मिले हैं। तुरंत हल्दी, एलोवेरा और चूने का लेप लगाएं। मीरा गाय में गंभीर थनैला है, तुरंत डॉक्टर को बुलाएं।"
-            : "Welcome to MASTITIS AI. You have 6 cattle registered. Cow Kamdhenu has subclinical mastitis in the right hind quarter. Apply ICAR herbal paste immediately. Cow Meera has acute mastitis and requires an immediate veterinary visit.";
+            : "Welcome to LactoGuard. You have 6 cattle registered. Cow Kamdhenu has subclinical mastitis in the right hind quarter. Apply ICAR herbal paste immediately. Cow Meera has acute mastitis and requires an immediate veterinary visit.";
         speakText(spoken);
       };
     }
@@ -1495,7 +1495,7 @@
   window.sharePredictionWhatsApp = () => {
     const pred = state.lastPrediction;
     if (!pred) return;
-    const msg = `*MastiTrack AI Clinical Alert* 🐄%0A*Cow:* ${pred.cow_name} (${pred.cattle_id})%0A*Risk Level:* ${pred.risk_level} (${pred.risk_score}%)%0A*Diagnosis:* ${pred.summary_en}%0A*Recommended Action:* ICAR Phytotherapy / Immediate veterinary visit.`;
+    const msg = `*LactoGuard Clinical Alert* 🐄%0A*Cow:* ${pred.cow_name} (${pred.cattle_id})%0A*Risk Level:* ${pred.risk_level} (${pred.risk_score}%)%0A*Diagnosis:* ${pred.summary_en}%0A*Recommended Action:* ICAR Phytotherapy / Immediate veterinary visit.`;
     window.open(`https://wa.me/?text=${msg}`);
   };
 

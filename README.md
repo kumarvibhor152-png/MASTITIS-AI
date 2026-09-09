@@ -1,4 +1,4 @@
-# 🐄 Mastitis AI — Pashu Swasthya Dashboard
+# 🐄 LactoGuard — Pashu Swasthya Dashboard
 ### Smart India Hackathon 2026 | Problem Statement #109
 ### AI-Based Predictive Modelling for Early Forecasting of Bovine Mastitis
 
@@ -6,7 +6,7 @@
 
 ## 🌟 Project Overview
 
-Mastitis AI is a farmer-friendly, multilingual web dashboard that uses Artificial Intelligence to predict the risk of **Bovine Mastitis** early — before symptoms become severe. It empowers Indian dairy farmers with actionable insights to protect their cattle and maximize milk yield.
+LactoGuard is a farmer-friendly, multilingual web dashboard that uses Artificial Intelligence to predict the risk of **Bovine Mastitis** early — before symptoms become severe. It empowers Indian dairy farmers with actionable insights to protect their cattle and maximize milk yield.
 
 ### Key Features
 - 🤖 **AI Risk Prediction** — XGBoost model with 3-tier risk classification (Low/Medium/High)
@@ -23,7 +23,7 @@ Mastitis AI is a farmer-friendly, multilingual web dashboard that uses Artificia
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    MastiTrack AI Stack                       │
+│                    LactoGuard Stack                         │
 ├──────────────┬──────────────────┬───────────────────────────┤
 │  Frontend    │    Backend       │      AI Service           │
 │  React+Vite  │  Node.js+Express │  Python FastAPI           │
@@ -116,6 +116,15 @@ Open http://localhost:5173 🎉
 4. Whitelist IP: `0.0.0.0/0` (allow all for Railway)
 5. Get connection string → add to backend `.env`
 
+<<<<<<< HEAD
+=======
+### OTP → MSG91 Setup
+
+1. Create account at [msg91.com](https://msg91.com)
+2. Create OTP template: `Your LactoGuard OTP is {{otp}}. Valid for 5 minutes.`
+3. Get Auth Key + Template ID → add to backend `.env`
+
+>>>>>>> 0cd4011 (Update platform branding to LactoGuard and set default farmer to Kundan Pal)
 ---
 
 ## 📁 Project Structure

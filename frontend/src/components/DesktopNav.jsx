@@ -54,10 +54,7 @@ export default function DesktopNav() {
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
-                MASTITIS
-              </span>
-              <span className="text-[10px] font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded border border-emerald-200 dark:border-emerald-800">
-                AI
+                LactoGuard
               </span>
             </div>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 font-medium truncate">
@@ -149,11 +146,11 @@ export default function DesktopNav() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">
-              {(user?.name || 'F')[0].toUpperCase()}
+              {(user?.name || 'K')[0].toUpperCase()}
             </div>
             <div className="min-w-0">
               <div className="text-xs font-bold text-slate-900 dark:text-white truncate">
-                {user?.name || 'Farmer'}
+                {user?.name || 'Kundan Pal'}
               </div>
               <div className="text-[10px] text-slate-400 dark:text-slate-500 truncate">
                 {user?.farmName || 'Dairy Farm'}

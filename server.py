@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-server.py — High-Performance Turnkey Server for Bovine Mastitis AI Dashboard
+server.py — High-Performance Turnkey Server for LactoGuard Dashboard
 Smart India Hackathon (SIH) Problem Statement 109
 
 Features:
@@ -176,7 +176,7 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
         if path == "/api/health":
             self._send_json({
                 "status": "healthy",
-                "service": "MastiTrack AI Backend",
+                "service": "LactoGuard Backend",
                 "version": "2.0.0",
                 "platform": "Smart India Hackathon 2024 (Problem Statement 109)",
                 "ai_engine": "Veterinary Calibrated Ensemble",
@@ -343,7 +343,7 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
             if otp in ("123456", "999999") or len(otp) == 6:
                 user_data = {
                     "id": f"farmer-{phone[-4:] if len(phone)>=4 else '0001'}",
-                    "name": "Kisan Ramesh Patel (रमेश पटेल)",
+                    "name": "Kisan Kundan Pal (कुंदन पाल)",
                     "phone": phone or "9876543210",
                     "role": "dairy_owner",
                     "farm_name": "Surabhi Gausansthan (सुरभि गोशाला)",
@@ -359,7 +359,7 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
         if path == "/api/auth/demo-login":
             user_data = {
                 "id": "demo-kisan-01",
-                "name": "Kisan Rajesh Kumar (राजेश कुमार)",
+                "name": "Kisan Kundan Pal (कुंदन पाल)",
                 "phone": "9876543210",
                 "role": "farmer",
                 "farm_name": "Dhenu Krishi Farm (धेनु कृषि फार्म)",
@@ -481,7 +481,7 @@ def run_server():
     server_address = ("", PORT)
     httpd = ThreadingHTTPServer(server_address, AppRequestHandler)
     print(f"\n========================================================")
-    print(f"🐄 DhenuRakshak AI — Bovine Mastitis Early Warning System")
+    print(f"🐄 LactoGuard — Bovine Mastitis Early Warning System")
     print(f"🏆 Smart India Hackathon (SIH) Problem Statement 109")
     print(f"========================================================")
     print(f"🌾 Server running at: http://localhost:{PORT}")

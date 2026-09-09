@@ -97,7 +97,7 @@ export default function Dashboard() {
             <span className="text-xs text-slate-500 font-medium">Anand, Gujarat</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mt-0.5">
-            {t('dashboard.greeting')}, {user?.name?.split(' ')[0] || 'Farmer'}
+            {t('dashboard.greeting')}, {user?.name?.split(' ')[0] || 'Kundan'}
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {greeting} — Real-time herd health & milking telemetry overview

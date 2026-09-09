@@ -12,7 +12,7 @@ export default class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('MASTITIS AI UI ErrorBoundary caught an error:', error, errorInfo);
+    console.error('LactoGuard UI ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ errorInfo });
   }
 

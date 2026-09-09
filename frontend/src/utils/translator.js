@@ -1,4 +1,4 @@
-// Dynamic Web Translation Controller for MASTITIS AI
+// Dynamic Web Translation Controller for LactoGuard
 // Automatically translates all website text on the fly without hardcoding dictionary keys
 
 export const LANGUAGES = [

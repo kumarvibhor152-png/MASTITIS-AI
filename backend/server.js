@@ -99,7 +99,7 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log('\n');
   console.log('  🐄  ╔══════════════════════════════════════════╗');
-  console.log('      ║       MastiTrack AI  —  Backend          ║');
+  console.log('      ║          LactoGuard  —  Backend          ║');
   console.log('      ║  Node.js + Express + MongoDB  🚀         ║');
   console.log('      ╚══════════════════════════════════════════╝');
   console.log(`\n  ✅  Server running on port ${PORT}`);

@@ -24,6 +24,11 @@ const useAuthStore = create(
         token: state.token,
         isAuth: state.isAuth,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.user?.name && (state.user.name.includes('Ramesh') || state.user.name.includes('Rajesh'))) {
+          state.user.name = 'Kundan Pal';
+        }
+      },
     }
   )
 );

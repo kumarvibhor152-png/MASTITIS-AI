@@ -80,7 +80,7 @@ export default function Login() {
     // Demo user profile
     const mockUser = {
       id: '1',
-      name: 'Ramesh Patel',
+      name: 'Kundan Pal',
       phone: `+91 ${phone}`,
       farmName: 'Surabhi Dairy & Breeding Farm',
       village: 'Anand',
@@ -111,7 +111,7 @@ export default function Login() {
             <div>
               <div className="flex items-center gap-2.5">
                 <span className="font-extrabold text-2xl tracking-tight text-white">
-                  MASTITIS AI
+                  LactoGuard
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-400/20 text-emerald-300 border border-emerald-400/30">
                   Precision Dairy
@@ -224,7 +224,7 @@ export default function Login() {
             </div>
             <div>
               <div className="text-slate-900 dark:text-white font-bold text-base leading-tight">
-                MASTITIS AI
+                LactoGuard
               </div>
               <div className="text-xs text-slate-400">Precision Dairy Platform</div>
             </div>
@@ -420,7 +420,7 @@ export default function Login() {
               (Toll Free)
             </span>
           </div>
-          <div className="text-[11px] text-slate-400">MASTITIS AI • Version 2.4</div>
+          <div className="text-[11px] text-slate-400">LactoGuard • Version 2.4</div>
         </div>
       </div>
 

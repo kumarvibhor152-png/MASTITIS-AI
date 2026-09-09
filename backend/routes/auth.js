@@ -137,7 +137,7 @@ router.post(
           },
           isNewUser,
         },
-        isNewUser ? 'Account created. Welcome to MastiTrack AI!' : 'Login successful. Welcome back!'
+        isNewUser ? 'Account created. Welcome to LactoGuard!' : 'Login successful. Welcome back!'
       );
     } catch (err) {
       next(err);

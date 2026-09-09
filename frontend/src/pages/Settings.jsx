@@ -52,7 +52,7 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to sign out from MASTITIS AI?')) {
+    if (window.confirm('Are you sure you want to sign out from LactoGuard?')) {
       logout();
       navigate('/login', { replace: true });
       toast.success('Signed out successfully');
@@ -83,11 +83,11 @@ export default function Settings() {
         <div className="bg-white dark:bg-[#11221b] rounded-xl border border-slate-200/80 dark:border-[#1e3a2f] p-5 shadow-card">
           <div className="flex items-center gap-4 pb-5 border-b border-slate-100 dark:border-[#1e3a2f]">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center text-xl font-bold shadow-md shadow-emerald-700/20 shrink-0">
-              {(user?.name || 'F')[0].toUpperCase()}
+              {(user?.name || 'K')[0].toUpperCase()}
             </div>
             <div className="min-w-0">
               <h2 className="text-lg font-bold text-slate-900 dark:text-white truncate">
-                {user?.name || 'Farmer Ramesh Patel'}
+                {user?.name || 'Farmer Kundan Pal'}
               </h2>
               <p className="text-xs text-slate-400 font-mono mt-0.5">
                 {user?.phone || '+91 9876543210'}
