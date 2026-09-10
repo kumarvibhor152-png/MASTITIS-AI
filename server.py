@@ -548,6 +548,25 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
                 self._send_json({"success": False, "error": "Voice assistant module not available"})
             return
 
+        if path == "/api/voice/transcribe":
+            import base64
+            audio_b64 = body.get("audio", "")
+            fmt = body.get("format", "webm")
+            if not audio_b64:
+                self._send_json({"success": False, "error": "No audio data received"}, status=400)
+                return
+            try:
+                audio_bytes = base64.b64decode(audio_b64)
+                if voice_assistant:
+                    res = voice_assistant.transcribe_audio_bytes(audio_bytes, filename=f"speech.{fmt}")
+                    self._send_json(res)
+                else:
+                    self._send_json({"success": False, "error": "Voice assistant module not available"}, status=500)
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)}, status=500)
+            return
+
+
         # ─── AI Mastitis Prediction ───────────────────────────────────
         if path == "/api/predict":
             prediction_result = predictor.predict(body)

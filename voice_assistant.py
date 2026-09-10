@@ -202,6 +202,67 @@ def listen_to_microphone(timeout=12, phrase_time_limit=18):
         return {"text": "", "success": False, "error": f"Microphone error: {ex}"}
 
 
+def transcribe_audio_bytes(audio_bytes, filename="audio.webm"):
+    """
+    Transcribes raw audio bytes using Groq Whisper model (whisper-large-v3-turbo).
+    Falls back to SpeechRecognition AudioFile if available.
+    """
+    import tempfile
+    ext = os.path.splitext(filename)[1] or ".webm"
+    groq_key = get_api_key("groq")
+
+    if groq_key and HAS_GROQ_SDK:
+        try:
+            client = Groq(api_key=groq_key)
+            with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
+                tmp.write(audio_bytes)
+                tmp_path = tmp.name
+
+            try:
+                with open(tmp_path, "rb") as f:
+                    transcription = client.audio.transcriptions.create(
+                        file=(filename, f.read()),
+                        model="whisper-large-v3-turbo",
+                        response_format="json"
+                    )
+                text = getattr(transcription, "text", "") or ""
+                return {"text": text.strip(), "success": bool(text.strip()), "error": None if text.strip() else "No speech detected"}
+            finally:
+                if os.path.exists(tmp_path):
+                    try:
+                        os.remove(tmp_path)
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"[Groq Whisper Error] {e}")
+
+    # Fallback to SpeechRecognition if audio is in WAV or supported format
+    if HAS_SR:
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                tmp.write(audio_bytes)
+                tmp_path = tmp.name
+            try:
+                r = sr.Recognizer()
+                with sr.AudioFile(tmp_path) as source:
+                    audio_data = r.record(source)
+                    text = r.recognize_google(audio_data)
+                    return {"text": text.strip(), "success": True, "error": None}
+            except Exception as e:
+                return {"text": "", "success": False, "error": f"Transcription: {e}"}
+            finally:
+                if os.path.exists(tmp_path):
+                    try:
+                        os.remove(tmp_path)
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    return {"text": "", "success": False, "error": "Transcription unavailable. Please type your query."}
+
+
+
 # Grounded System Prompt for External AI
 def build_grounded_system_prompt():
     owner = GROUNDING_METADATA.get("farm_context", {}).get("owner", "Kundan Pal")
