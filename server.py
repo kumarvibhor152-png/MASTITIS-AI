@@ -319,6 +319,8 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
 
         if path == "/api/voice/status":
             meta = getattr(voice_assistant, "GROUNDING_METADATA", {}) if voice_assistant else {}
+            has_gemini = bool(voice_assistant.get_api_key("gemini")) if voice_assistant else False
+            has_openai = bool(voice_assistant.get_api_key("openai")) if voice_assistant else False
             self._send_json({
                 "success": True,
                 "status": "online",
@@ -327,10 +329,23 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
                 "accuracy_pct": meta.get("accuracy_pct", 100.0),
                 "has_tts": getattr(voice_assistant, "HAS_PYTTSX3", False),
                 "has_mic": getattr(voice_assistant, "HAS_SR", False),
-                "external_ai_configured": bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY")),
+                "has_gemini_key": has_gemini,
+                "external_ai_configured": has_gemini or has_openai,
+                "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)",
                 "farmer_name": "Kundan Pal",
                 "farm_name": "Surabhi Dairy Farm",
                 "total_cows": 8
+            })
+            return
+
+        if path == "/api/voice/config":
+            has_gemini = bool(voice_assistant.get_api_key("gemini")) if voice_assistant else False
+            has_openai = bool(voice_assistant.get_api_key("openai")) if voice_assistant else False
+            self._send_json({
+                "success": True,
+                "has_gemini_key": has_gemini,
+                "has_openai_key": has_openai,
+                "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)"
             })
             return
 
@@ -395,12 +410,33 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
             return
 
         # ─── AI Voice Assistant Routes ────────────────────────────────
+        if path == "/api/voice/config":
+            gemini_key = body.get("gemini_api_key")
+            openai_key = body.get("openai_api_key")
+            if voice_assistant:
+                voice_assistant.set_api_key(gemini_key=gemini_key, openai_key=openai_key)
+                has_gemini = bool(voice_assistant.get_api_key("gemini"))
+                self._send_json({
+                    "success": True,
+                    "message": "AI API key configured successfully!",
+                    "has_gemini_key": has_gemini,
+                    "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)"
+                })
+            else:
+                self._send_json({"success": False, "error": "Voice assistant module not available"}, status=500)
+            return
+
         if path == "/api/voice/chat":
             query = body.get("query", "").strip()
             if not query:
                 self._send_json({"success": False, "error": "Query is required"}, status=400)
                 return
             
+            # Optional on-the-fly API key from client
+            custom_gemini = body.get("gemini_api_key", "").strip()
+            if custom_gemini and voice_assistant:
+                voice_assistant.set_api_key(gemini_key=custom_gemini)
+
             if voice_assistant:
                 res = voice_assistant.ask_voice_assistant(query)
                 if body.get("speak", False):

@@ -23,12 +23,14 @@
     speechSynthesisActive: false,
     voiceListening: false,
     voiceProcessing: false,
+    hasGeminiKey: false,
+    showConfigModal: false,
     voiceMessages: [
       {
         sender: "ai",
-        text: "Namaste Kundan Pal ji! I am your LactoGuard AI Voice Assistant. I am trained on 2,500 clinical dairy records with 100% diagnostic accuracy using XGBoost. Ask me about cow diagnoses, herd telemetry, or ICAR herbal paste treatments.",
-        source: "trained_xgboost_local",
-        timestamp: "17:30"
+        text: "Namaste Kundan Pal ji! I am your LactoGuard AI Voice Assistant. You can ask me any question about your cows, treatments, veterinary medicines, or sensor readings, just like Gemini.",
+        source: "LactoGuard AI",
+        timestamp: "17:40"
       }
     ]
   };
@@ -156,6 +158,16 @@
     } catch (e) {
       console.warn("Using offline alerts data", e);
     }
+  }
+
+  async function fetchAiConfig() {
+    try {
+      const res = await fetch("/api/voice/config");
+      const data = await res.json();
+      if (data.success) {
+        state.hasGeminiKey = Boolean(data.has_gemini_key || localStorage.getItem("dhenu_gemini_key"));
+      }
+    } catch (e) {}
   }
 
   async function runAiPrediction(payload) {
@@ -336,7 +348,7 @@
       <!-- Nmap Centered Callout Ribbon -->
       <div class="center pbbox">
         <span style="color:var(--c-accent-dark); font-weight:700;">🎙️ LactoGuard AI Voice Assistant Active</span> —
-        XGBoost 100% Diagnostic Accuracy calibrated on 2,500 clinical dataset records.
+        Real-world conversational bovine health intelligence trained on 2,500 clinical dataset records.
       </div>
 
       <!-- Hero Card: Voice Assistant Console -->
@@ -347,25 +359,53 @@
             <div>
               <h2>LactoGuard AI Voice Assistant</h2>
               <p style="font-size:0.8rem; color:var(--text-muted); margin:2px 0 0 0;">
-                Primary Interface • Spoken Diagnostics & Farm Telemetry for <strong>${state.user.name || "Kundan Pal"}</strong>
+                Primary Interface • Open-Ended Veterinary Q&A for <strong>${state.user.name || "Kundan Pal"}</strong>
               </p>
             </div>
           </div>
-          <div class="voice-badge-online">
-            <span class="dot"></span>
-            <span>AI ENGINE ONLINE</span>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <div class="voice-badge-online">
+              <span class="dot"></span>
+              <span>${state.hasGeminiKey ? "✨ GEMINI 1.5 FLASH LIVE" : "AI ENGINE ONLINE"}</span>
+            </div>
+            <button class="btn-voice-action" id="btnToggleAiConfig" style="font-size:0.75rem; padding:4px 10px; background:#f0f9ff; border:1px solid #bae6fd; color:#0369a1;">
+              ⚙️ ${state.hasGeminiKey ? "Gemini Key Connected" : "Connect Gemini API"}
+            </button>
           </div>
         </div>
+
+        <!-- AI Engine Configuration Drawer -->
+        ${
+          state.showConfigModal
+            ? `
+          <div style="background:#f8fafc; border:1.5px solid #bae6fd; border-radius:6px; padding:14px; margin-bottom:16px; animation:fadeIn 0.2s ease;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <strong style="color:#0369a1; font-size:0.92rem;">🤖 Configure Google Gemini API (Real-World Intelligence)</strong>
+              <button id="btnCloseAiConfig" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:#64748b;">✖</button>
+            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
+              Enter your Google Gemini API key below to query Gemini 1.5 Flash live with dataset prompt grounding.
+              Leave empty or click "Use Offline Engine" to use the built-in clinical veterinary semantic reasoning engine.
+            </p>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <input type="password" id="inputGeminiKey" class="voice-input-field" placeholder="Paste Google Gemini API Key (e.g. AIzaSy...)" style="flex:1; min-width:240px; font-size:0.85rem;" value="${localStorage.getItem("dhenu_gemini_key") || ""}" />
+              <button class="btn-voice-send" id="btnSaveGeminiKey" style="font-size:0.82rem; padding:6px 14px;">Save Key</button>
+              <button class="btn-voice-action" id="btnClearGeminiKey" style="font-size:0.82rem;">Use Offline Engine</button>
+            </div>
+          </div>
+        `
+            : ""
+        }
 
         <!-- Model & Grounding Metadata Banner -->
         <div class="voice-grounding-banner">
           <div class="voice-grounding-item">
             <span>🏷️</span>
-            <span><strong>Model:</strong> XGBoost Mastitis Diagnostic Engine (100% Acc)</span>
+            <span><strong>Model:</strong> ${state.hasGeminiKey ? "Google Gemini 1.5 Flash (Live Grounded)" : "XGBoost Diagnostic & Semantic Engine"}</span>
           </div>
           <div class="voice-grounding-item">
             <span>📊</span>
-            <span><strong>Dataset:</strong> 2,500 Clinical Bovine Cases</span>
+            <span><strong>Dataset:</strong> 2,500 Clinical Bovine Records</span>
           </div>
           <div class="voice-grounding-item">
             <span>🔊</span>
@@ -399,8 +439,8 @@
               state.voiceListening
                 ? "🎙️ Listening... Speak now into your microphone."
                 : state.voiceProcessing
-                ? "⏳ Analyzing query & sensor telemetry via trained AI model..."
-                : "Click microphone to speak, or click a quick prompt below"
+                ? "⏳ Analyzing query & bovine knowledge via AI model..."
+                : "Click microphone to speak, or click a question below"
             }
           </div>
 
@@ -422,25 +462,31 @@
 
         <!-- Preset Chips / Fast Diagnostic Queries -->
         <div class="voice-chips-container">
-          <div class="voice-chips-label">⚡ Fast Diagnostic Prompts (Click to Ask AI)</div>
+          <div class="voice-chips-label">⚡ Fast Real-World Questions (Click to Ask AI)</div>
           <div class="voice-chips">
+            <button class="voice-chip" data-query="Can humans drink milk from a cow with mastitis?">
+              🥛 Can humans drink mastitic milk?
+            </button>
+            <button class="voice-chip" data-query="Can I give paracetamol or meloxicam for mastitis pain?">
+              💊 Pain medicine for swollen udder?
+            </button>
+            <button class="voice-chip" data-query="What is the ICAR herbal paste recipe?">
+              🌿 ICAR Aloe Vera-Turmeric recipe
+            </button>
+            <button class="voice-chip" data-query="What is dry cow therapy & how to prevent dry mastitis?">
+              🩺 What is dry cow therapy?
+            </button>
+            <button class="voice-chip" data-query="My cow has EC 6.8 and SCC 450,000, what should I do?">
+              📊 Custom Diagnosis: EC 6.8 & SCC 450k
+            </button>
+            <button class="voice-chip" data-query="Why does milk turn watery and yellow in mastitis?">
+              🔬 Why does milk turn watery & salty?
+            </button>
             <button class="voice-chip" data-query="How is Kaveri?">
               🐄 Check Cow Kaveri (Cow #4)
             </button>
             <button class="voice-chip" data-query="How is my herd health today?">
               🌾 How is my herd health today?
-            </button>
-            <button class="voice-chip" data-query="What is the ICAR herbal paste recipe?">
-              🌿 What is the ICAR herbal paste recipe?
-            </button>
-            <button class="voice-chip" data-query="Estimate financial loss for subclinical mastitis">
-              💰 Estimate financial loss for subclinical mastitis
-            </button>
-            <button class="voice-chip" data-query="What are normal EC and SCC thresholds?">
-              📊 What are normal EC & SCC thresholds?
-            </button>
-            <button class="voice-chip" data-query="Check cow Gauri">
-              🔬 Check Cow Gauri (Murrah Buffalo)
             </button>
           </div>
         </div>
@@ -458,7 +504,7 @@
                 <span>${msg.sender === "user" ? "👨‍🌾 " + (state.user.name || "Kundan Pal") : "🤖 LactoGuard AI Assistant"}</span>
                 ${
                   msg.source
-                    ? `<span class="source-badge">[${msg.source === "trained_xgboost_local" ? "XGBoost Grounded" : msg.source}]</span>`
+                    ? `<span class="source-badge">[${msg.source === "trained_xgboost_local" ? "Grounded AI Engine" : msg.source}]</span>`
                     : ""
                 }
                 <span>${msg.timestamp}</span>
@@ -480,7 +526,7 @@
             type="text"
             class="voice-input-field"
             id="voiceInputField"
-            placeholder="Ask anything about your cows, treatments, or sensor readings (e.g. 'How is Kaveri?')..."
+            placeholder="Ask anything like Gemini (e.g. 'Can humans drink mastitic milk?', 'What is dry cow therapy?', or EC/SCC numbers)..."
             autocomplete="off"
           />
           <button class="btn-voice-send" id="voiceSendBtn">
@@ -524,6 +570,66 @@
     const statusText = document.getElementById("voiceStatusText");
     const repeatBtn = document.getElementById("btnRepeatLast");
     const stopBtn = document.getElementById("btnStopSpeech");
+
+    // Config Modal Listeners
+    const toggleConfigBtn = document.getElementById("btnToggleAiConfig");
+    const closeConfigBtn = document.getElementById("btnCloseAiConfig");
+    const saveGeminiKeyBtn = document.getElementById("btnSaveGeminiKey");
+    const clearGeminiKeyBtn = document.getElementById("btnClearGeminiKey");
+
+    if (toggleConfigBtn) {
+      toggleConfigBtn.onclick = () => {
+        state.showConfigModal = !state.showConfigModal;
+        render();
+      };
+    }
+
+    if (closeConfigBtn) {
+      closeConfigBtn.onclick = () => {
+        state.showConfigModal = false;
+        render();
+      };
+    }
+
+    if (saveGeminiKeyBtn) {
+      saveGeminiKeyBtn.onclick = async () => {
+        const keyInput = document.getElementById("inputGeminiKey");
+        const val = keyInput ? keyInput.value.trim() : "";
+        if (val) {
+          localStorage.setItem("dhenu_gemini_key", val);
+          try {
+            await fetch("/api/voice/config", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ gemini_api_key: val })
+            });
+            state.hasGeminiKey = true;
+            state.showConfigModal = false;
+            alert("Google Gemini API Key saved! LactoGuard Voice Assistant is now powered live by Gemini 1.5 Flash.");
+            render();
+          } catch (e) {
+            alert("Failed to save key to server: " + e);
+          }
+        }
+      };
+    }
+
+    if (clearGeminiKeyBtn) {
+      clearGeminiKeyBtn.onclick = async () => {
+        localStorage.removeItem("dhenu_gemini_key");
+        try {
+          await fetch("/api/voice/config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ gemini_api_key: "" })
+          });
+        } catch (e) {}
+        state.hasGeminiKey = false;
+        state.showConfigModal = false;
+        alert("Switched to built-in LactoGuard Veterinary Semantic Reasoning Engine.");
+        render();
+      };
+    }
 
     function setListeningState(listening) {
       state.voiceListening = listening;
@@ -631,17 +737,22 @@
       render();
 
       try {
+        const savedGeminiKey = localStorage.getItem("dhenu_gemini_key") || "";
         const res = await fetch("/api/voice/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: query, speak: true })
+          body: JSON.stringify({
+            query: query,
+            speak: true,
+            gemini_api_key: savedGeminiKey
+          })
         });
         const data = await res.json();
         const reply = data.response || "No response received from AI model.";
         state.voiceMessages.push({
           sender: "ai",
           text: reply,
-          source: data.source || "trained_xgboost_local",
+          source: data.source || "LactoGuard AI",
           timestamp: data.timestamp || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         });
         speakText(reply);
@@ -1999,7 +2110,7 @@ PREVENTED    : Est. ₹${pred.economic_impact.saved_by_early_forecast_inr.toLoca
 
   // ─── Initialization ──────────────────────────────────────────────────────
   async function init() {
-    await Promise.all([fetchCattle(), fetchAlerts()]);
+    await Promise.all([fetchCattle(), fetchAlerts(), fetchAiConfig()]);
     // Pre-run prediction on Kamdhenu so results are immediately visible for judges!
     if (!state.lastPrediction && state.cattle.length > 1) {
       const c = state.cattle[1];
