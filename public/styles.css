@@ -1318,3 +1318,329 @@ table tr:hover {
   }
 }
 
+/* ─── Instant Cow Database Search Widget ───────────────────────────── */
+.cow-search-widget {
+  background: #f8fafc;
+  border: 1.5px solid #bae6fd;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.cow-search-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.cow-search-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cow-search-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cow-search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 0.95rem;
+  color: #0284c7;
+  pointer-events: none;
+}
+
+.cow-search-input {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  font-size: 0.88rem;
+  border: 1.5px solid #bae6fd;
+  border-radius: 4px;
+  outline: none;
+  font-family: inherit;
+  background: #ffffff;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cow-search-input:focus {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.18);
+}
+
+.btn-clear-cow-search {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  padding: 4px;
+}
+
+.btn-clear-cow-search:hover {
+  color: #0f172a;
+}
+
+/* Quick Filter Pills */
+.cow-filter-strip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.cow-filter-pill {
+  padding: 3px 10px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cow-filter-pill:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.cow-filter-pill.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.cow-filter-pill.danger.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.cow-filter-pill.warning.active {
+  background: #d97706;
+  border-color: #d97706;
+  color: #ffffff;
+}
+
+.cow-filter-pill.safe.active {
+  background: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+
+/* Live Instant Results Grid */
+.cow-search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.cow-search-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cow-search-card:hover {
+  border-color: #0284c7;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
+  transform: translateY(-1px);
+}
+
+.cow-search-card.risk-high {
+  border-left: 4px solid #dc2626;
+}
+
+.cow-search-card.risk-med {
+  border-left: 4px solid #d97706;
+}
+
+.cow-search-card.risk-low {
+  border-left: 4px solid #059669;
+}
+
+.cow-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cow-card-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #0f172a;
+}
+
+.cow-card-tag {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.cow-card-sub {
+  font-size: 0.74rem;
+  color: #64748b;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* In-Chat Interactive Cattle Card */
+.chat-cattle-card {
+  margin-top: 8px;
+  background: #f0f9ff;
+  border: 1.5px solid #bae6fd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+
+.chat-cattle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #bae6fd;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.chat-cattle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  font-size: 0.8rem;
+  margin-bottom: 8px;
+}
+
+.chat-cattle-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.btn-card-action {
+  font-size: 0.74rem;
+  padding: 3px 8px;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 3px;
+  color: #0369a1;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-card-action:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+/* Cattle Dossier Modal */
+.cow-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.15s ease;
+}
+
+.cow-modal {
+  background: #ffffff;
+  border-radius: 8px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  border: 2px solid #bae6fd;
+  display: flex;
+  flex-direction: column;
+}
+
+.cow-modal-header {
+  background: #0369a1;
+  color: #ffffff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cow-modal-body {
+  padding: 16px;
+  font-size: 0.88rem;
+  color: #0f172a;
+}
+
+.cow-modal-footer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 4-Quarter Udder Visualizer */
+.udder-quarter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0;
+}
+
+.udder-quarter-cell {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 8px;
+  text-align: center;
+}
+
+.udder-quarter-cell.acute {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.udder-quarter-cell.subclinical {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #d97706;
+}
+
+.udder-quarter-cell.healthy {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+

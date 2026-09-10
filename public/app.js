@@ -26,6 +26,9 @@
     hasGroqKey: Boolean(localStorage.getItem("lactoguard_groq_key")),
     hasGeminiKey: Boolean(localStorage.getItem("dhenu_gemini_key")),
     showConfigModal: false,
+    cowSearchQuery: "",
+    cowSearchFilter: "all",
+    selectedDossierCow: null,
     voiceMessages: [
       {
         sender: "ai",
@@ -238,6 +241,54 @@
         viewport.innerHTML = renderVoiceAssistantView();
         setupVoiceAssistantListeners();
     }
+    bindUniversalModalListeners();
+  }
+
+  function bindUniversalModalListeners() {
+    const closeCowModalBtn = document.getElementById("btnCloseCowModal");
+    const closeCowModalFooter = document.getElementById("btnCloseCowModalFooter");
+    const modalBackdrop = document.getElementById("cowDossierModalBackdrop");
+    const speakCowDossierBtn = document.getElementById("btnSpeakCowDossier");
+    const askAiAboutCowBtn = document.getElementById("btnAskAiAboutCow");
+
+    if (closeCowModalBtn) {
+      closeCowModalBtn.onclick = () => {
+        state.selectedDossierCow = null;
+        render();
+      };
+    }
+    if (closeCowModalFooter) {
+      closeCowModalFooter.onclick = () => {
+        state.selectedDossierCow = null;
+        render();
+      };
+    }
+    if (modalBackdrop) {
+      modalBackdrop.onclick = (e) => {
+        if (e.target === modalBackdrop) {
+          state.selectedDossierCow = null;
+          render();
+        }
+      };
+    }
+    if (speakCowDossierBtn && state.selectedDossierCow) {
+      speakCowDossierBtn.onclick = () => {
+        const cow = state.selectedDossierCow;
+        const maxEc = Math.max(cow.ec_lf || 0, cow.ec_rf || 0, cow.ec_lh || 0, cow.ec_rh || 0).toFixed(2);
+        const audioText = `Clinical report for ${cow.name}, ID ${cow.id}. Mastitis risk is ${cow.risk_level}. Maximum udder conductivity is ${maxEc} milliSiemens per centimeter. Somatic cell count is ${(cow.scc || 150000).toLocaleString()} cells per milliliter. Daily milk yield is ${cow.milk_yield} liters. ${cow.risk_level === "HIGH" ? "Immediate veterinary care and quarter isolation is required." : cow.risk_level === "MEDIUM" ? "Apply ICAR herbal aloe turmeric lime paste three times daily for 5 days." : "Cow is in healthy condition."}`;
+        speakText(audioText);
+      };
+    }
+    if (askAiAboutCowBtn && state.selectedDossierCow) {
+      askAiAboutCowBtn.onclick = () => {
+        const cow = state.selectedDossierCow;
+        state.selectedDossierCow = null;
+        state.currentView = "voice";
+        render();
+        const query = `Give me full diagnostic details for ${cow.name} (${cow.id}) and treatment steps`;
+        handleUserVoiceQuery(query);
+      };
+    }
   }
 
   // ─── Header Rendering ────────────────────────────────────────────────────
@@ -339,6 +390,284 @@
     }
   }
 
+  // ─── Instant Cow Search & Dossier Helpers ──────────────────────────────
+  function getFilteredCows() {
+    const q = (state.cowSearchQuery || "").trim().toLowerCase();
+    const filter = state.cowSearchFilter || "all";
+
+    return (state.cattle || []).filter((cow) => {
+      if (filter !== "all" && (cow.risk_level || "LOW").toUpperCase() !== filter) {
+        return false;
+      }
+      if (!q) return true;
+      const nameMatch = (cow.name || "").toLowerCase().includes(q);
+      const idMatch = (cow.id || "").toLowerCase().includes(q);
+      const tagMatch = (cow.tag_number || "").toLowerCase().includes(q);
+      const breedMatch = (cow.breed || "").toLowerCase().includes(q);
+      const riskMatch = (cow.risk_level || "").toLowerCase().includes(q);
+      return nameMatch || idMatch || tagMatch || breedMatch || riskMatch;
+    });
+  }
+
+  function renderCowSearchCards(cows) {
+    if (!cows || cows.length === 0) {
+      return `
+        <div style="grid-column: 1 / -1; padding: 18px; text-align: center; color: var(--text-muted); font-size: 0.84rem; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 4px;">
+          🔍 No cows found matching "<strong>${state.cowSearchQuery || state.cowSearchFilter}</strong>". Try "Kaveri", "COW-108", "Lakshmi", "TAG-IND-807", or "Gir".
+        </div>
+      `;
+    }
+
+    return cows
+      .map((cow) => {
+        const risk = (cow.risk_level || "LOW").toUpperCase();
+        const riskClass = risk === "HIGH" ? "risk-high" : risk === "MEDIUM" ? "risk-med" : "risk-low";
+        const riskBadge =
+          risk === "HIGH"
+            ? `<span class="badge-pill badge-danger" style="font-size:0.68rem;">🚨 HIGH RISK</span>`
+            : risk === "MEDIUM"
+            ? `<span class="badge-pill badge-warning" style="font-size:0.68rem;">⚠️ SUBCLINICAL</span>`
+            : `<span class="badge-pill badge-safe" style="font-size:0.68rem;">🟢 HEALTHY</span>`;
+
+        const maxEc = Math.max(cow.ec_lf || 0, cow.ec_rf || 0, cow.ec_lh || 0, cow.ec_rh || 0).toFixed(2);
+        const sccK = cow.scc ? `${(cow.scc / 1000).toFixed(0)}k` : "150k";
+        const yieldDrop =
+          cow.baseline_yield && cow.baseline_yield > 0 && cow.milk_yield < cow.baseline_yield
+            ? `-${(((cow.baseline_yield - cow.milk_yield) / cow.baseline_yield) * 100).toFixed(0)}%`
+            : "Optimal";
+
+        return `
+        <div class="cow-search-card ${riskClass}" data-cow-id="${cow.id}" title="Click to view full instant clinical dossier for ${cow.name}">
+          <div class="cow-card-top">
+            <span class="cow-card-name">${cow.name}</span>
+            ${riskBadge}
+          </div>
+          <div class="cow-card-sub">
+            <span>${cow.id} • ${cow.tag_number || "TAG-IND"}</span>
+            <span>${cow.breed || "Gir"}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-top:4px; padding-top:4px; border-top:1px dashed #e2e8f0; color:#334155;">
+            <span>⚡ Max EC: <strong>${maxEc} mS/cm</strong></span>
+            <span>🔬 SCC: <strong>${sccK}</strong></span>
+            <span>🥛 <strong>${cow.milk_yield || 15}L</strong> (${yieldDrop})</span>
+          </div>
+        </div>
+      `;
+      })
+      .join("");
+  }
+
+  function renderInChatCattleCard(cow) {
+    if (!cow) return "";
+    const risk = (cow.risk_level || "LOW").toUpperCase();
+    const badgeClass = risk === "HIGH" ? "badge-danger" : risk === "MEDIUM" ? "badge-warning" : "badge-safe";
+    const maxEc = Math.max(cow.ec_lf || 0, cow.ec_rf || 0, cow.ec_lh || 0, cow.ec_rh || 0).toFixed(2);
+    const sccStr = cow.scc ? `${(cow.scc / 1000).toFixed(0)}k cells/mL` : "150k cells/mL";
+
+    return `
+      <div class="chat-cattle-card">
+        <div class="chat-cattle-header">
+          <div style="font-weight:700; color:#0369a1; display:flex; align-items:center; gap:6px;">
+            <span>🐄 ${cow.name}</span>
+            <span style="font-size:0.75rem; color:#64748b; font-family:var(--font-mono);">${cow.id}</span>
+          </div>
+          <span class="badge-pill ${badgeClass}" style="font-size:0.68rem;">${risk} RISK</span>
+        </div>
+        <div class="chat-cattle-grid">
+          <div>🏷️ <strong>Tag:</strong> <code>${cow.tag_number || "TAG-IND"}</code></div>
+          <div>🧬 <strong>Breed:</strong> ${cow.breed || "Gir"}</div>
+          <div>⚡ <strong>Max EC:</strong> ${maxEc} mS/cm</div>
+          <div>🔬 <strong>SCC:</strong> ${sccStr}</div>
+          <div>🥛 <strong>Yield:</strong> ${cow.milk_yield || 15} L/day</div>
+          <div>🌡️ <strong>Temp:</strong> ${cow.body_temp || 38.6}°C (pH ${cow.milk_ph || 6.6})</div>
+        </div>
+        <div class="chat-cattle-actions">
+          <button class="btn-card-action" onclick="window.openCowDossier('${cow.id}')">🔍 Open Full Dossier</button>
+          <button class="btn-card-action" onclick="window.runQuickCheckOnCow('${cow.id}')">⚡ AI Early Warning Scan</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderCowDossierModal() {
+    if (!state.selectedDossierCow) return "";
+    const cow = state.selectedDossierCow;
+    const risk = (cow.risk_level || "LOW").toUpperCase();
+    const maxEc = Math.max(cow.ec_lf || 0, cow.ec_rf || 0, cow.ec_lh || 0, cow.ec_rh || 0).toFixed(2);
+    const baseline = cow.baseline_yield || 18.0;
+    const current = cow.milk_yield || 15.0;
+    const yieldDropPct = baseline > current ? (((baseline - current) / baseline) * 100).toFixed(1) : 0;
+
+    const getQClass = (val) => {
+      if (val >= 7.0) return "acute";
+      if (val >= 5.5) return "subclinical";
+      return "healthy";
+    };
+    const getQBadge = (val) => {
+      if (val >= 7.0) return "🚨 ACUTE SPIKE";
+      if (val >= 5.5) return "⚠️ ELEVATED";
+      return "🟢 NORMAL";
+    };
+
+    const statusBanner =
+      risk === "HIGH"
+        ? `<div style="background:#fef2f2; border:1.5px solid #f87171; border-radius:6px; padding:10px 12px; margin-bottom:12px; color:#991b1b;">
+          <strong style="font-size:0.95rem;">🚨 CRITICAL: Acute Clinical Mastitis Detected</strong>
+          <p style="font-size:0.82rem; margin:4px 0 0 0; line-height:1.4;">
+            Severe ionic electrolyte leakage in udder quarters with severe milk yield drop (-${yieldDropPct}%). Somatic cell count ${(cow.scc || 980000).toLocaleString()} cells/mL exceeds clinical threshold. Udder temperature elevated at ${cow.body_temp || 40.2}°C.
+          </p>
+         </div>`
+        : risk === "MEDIUM"
+        ? `<div style="background:#fffbeb; border:1.5px solid #fbbf24; border-radius:6px; padding:10px 12px; margin-bottom:12px; color:#92400e;">
+          <strong style="font-size:0.95rem;">⚠️ 48-Hour Early Warning: Subclinical Mastitis</strong>
+          <p style="font-size:0.82rem; margin:4px 0 0 0; line-height:1.4;">
+            Asymptomatic subclinical mastitis identified by electrical conductivity variance (>0.5 mS/cm between quarters). Curable in 3-5 days with ICAR phytotherapy before clinical tissue necrosis occurs.
+          </p>
+         </div>`
+        : `<div style="background:#f0fdf4; border:1.5px solid #86efac; border-radius:6px; padding:10px 12px; margin-bottom:12px; color:#166534;">
+          <strong style="font-size:0.95rem;">🟢 HEALTHY: Optimal Bovine Health & Milk Quality</strong>
+          <p style="font-size:0.82rem; margin:4px 0 0 0; line-height:1.4;">
+            All 4 udder quarters exhibit balanced electrical conductivity (<5.5 mS/cm), somatic cell count normal (<200k), and milk production at optimal target.
+          </p>
+         </div>`;
+
+    const rxPlan =
+      risk === "HIGH"
+        ? `1. <strong>Immediate Veterinary Isolation:</strong> Isolate ${cow.name} and milk infected quarter LAST.<br>
+           2. <strong>Medical Intervention:</strong> Call vet (1962). Administer NSAID (Meloxicam 0.5 mg/kg IV/IM) for pain/swelling relief + intramammary antibiotic infusion following sensitivity test.<br>
+           3. <strong>Discard milk:</strong> Do NOT consume or sell milk during antibiotic withdrawal period.<br>
+           4. <strong>Teat dip:</strong> Dip in 0.5% povidone iodine post-milking.`
+        : risk === "MEDIUM"
+        ? `1. <strong>ICAR Herbal Phytotherapy Paste:</strong> Grind 250g fresh Aloe vera + 50g Turmeric powder + 15g Slaked Lime (Chuna) with 50ml mustard oil into smooth paste. Apply over entire udder 3 times daily for 5 consecutive days.<br>
+           2. <strong>Cleanliness:</strong> Disinfect stall bedding with dry lime powder. Complete milking strip test daily.<br>
+           3. <strong>Re-evaluate:</strong> Test conductivity again in 48 hours.`
+        : `1. Maintain standard hygienic milking practices.<br>
+           2. Post-milking teat dip with 0.5% chlorhexidine or iodine.<br>
+           3. Continue balanced feed ration (green fodder + mineral mixture 50g/day).`;
+
+    return `
+      <div class="cow-modal-backdrop" id="cowDossierModalBackdrop">
+        <div class="cow-modal">
+          <!-- Header -->
+          <div class="cow-modal-header">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.5rem;">🐄</span>
+              <div>
+                <div style="font-size:1.1rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                  ${cow.name}
+                  <span style="font-size:0.75rem; background:rgba(255,255,255,0.25); padding:2px 8px; border-radius:10px; font-weight:600;">${cow.id}</span>
+                </div>
+                <div style="font-size:0.78rem; opacity:0.9;">
+                  Tag: <code>${cow.tag_number || "TAG-IND"}</code> • Breed: <strong>${cow.breed || "Gir"}</strong> • Age: <strong>${cow.age_years || 4} Years</strong>
+                </div>
+              </div>
+            </div>
+            <button id="btnCloseCowModal" style="background:none; border:none; color:#ffffff; font-size:1.4rem; cursor:pointer; padding:4px 8px;">✖</button>
+          </div>
+
+          <!-- Body -->
+          <div class="cow-modal-body">
+            ${statusBanner}
+
+            <!-- Udder 4-Quarter Electrical Conductivity Matrix -->
+            <div style="margin-bottom:14px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <strong style="font-size:0.86rem; color:#0369a1;">🔬 4-Quarter Udder Conductivity Anomaly Matrix</strong>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Normal: &lt;5.5 mS/cm | Quarter diff &lt;0.5 mS/cm</span>
+              </div>
+              <div class="udder-quarter-grid">
+                <div class="udder-quarter-cell ${getQClass(cow.ec_lf || 4.8)}">
+                  <div style="font-size:0.72rem; font-weight:700; color:#64748b;">LEFT FRONT (LF)</div>
+                  <div style="font-size:1.35rem; font-weight:800; margin:2px 0;">${(cow.ec_lf || 4.8).toFixed(2)} <span style="font-size:0.75rem;">mS/cm</span></div>
+                  <span style="font-size:0.65rem; font-weight:700;">${getQBadge(cow.ec_lf || 4.8)}</span>
+                </div>
+                <div class="udder-quarter-cell ${getQClass(cow.ec_rf || 4.8)}">
+                  <div style="font-size:0.72rem; font-weight:700; color:#64748b;">RIGHT FRONT (RF)</div>
+                  <div style="font-size:1.35rem; font-weight:800; margin:2px 0;">${(cow.ec_rf || 4.8).toFixed(2)} <span style="font-size:0.75rem;">mS/cm</span></div>
+                  <span style="font-size:0.65rem; font-weight:700;">${getQBadge(cow.ec_rf || 4.8)}</span>
+                </div>
+                <div class="udder-quarter-cell ${getQClass(cow.ec_lh || 4.8)}">
+                  <div style="font-size:0.72rem; font-weight:700; color:#64748b;">LEFT HIND (LH)</div>
+                  <div style="font-size:1.35rem; font-weight:800; margin:2px 0;">${(cow.ec_lh || 4.8).toFixed(2)} <span style="font-size:0.75rem;">mS/cm</span></div>
+                  <span style="font-size:0.65rem; font-weight:700;">${getQBadge(cow.ec_lh || 4.8)}</span>
+                </div>
+                <div class="udder-quarter-cell ${getQClass(cow.ec_rh || 4.8)}">
+                  <div style="font-size:0.72rem; font-weight:700; color:#64748b;">RIGHT HIND (RH)</div>
+                  <div style="font-size:1.35rem; font-weight:800; margin:2px 0;">${(cow.ec_rh || 4.8).toFixed(2)} <span style="font-size:0.75rem;">mS/cm</span></div>
+                  <span style="font-size:0.65rem; font-weight:700;">${getQBadge(cow.ec_rh || 4.8)}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Key Biomarkers & Telemetry -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:10px 12px; margin-bottom:14px;">
+              <div style="font-size:0.82rem; font-weight:700; color:#0369a1; margin-bottom:8px;">📊 Key Clinical Telemetry Indicators</div>
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); gap:8px; font-size:0.8rem;">
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">SOMATIC CELL COUNT</span>
+                  <strong style="font-size:0.95rem; color:${(cow.scc || 0) > 400000 ? "#dc2626" : (cow.scc || 0) > 250000 ? "#d97706" : "#059669"}">
+                    ${(cow.scc || 150000).toLocaleString()} cells/mL
+                  </strong>
+                </div>
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">MILK pH</span>
+                  <strong style="font-size:0.95rem; color:${(cow.milk_ph || 6.6) > 6.8 ? "#dc2626" : "#059669"}">
+                    ${(cow.milk_ph || 6.6).toFixed(2)} ${cow.milk_ph > 6.8 ? "(Alkaline)" : "(Normal)"}
+                  </strong>
+                </div>
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">BODY TEMPERATURE</span>
+                  <strong style="font-size:0.95rem; color:${(cow.body_temp || 38.6) > 39.5 ? "#dc2626" : "#059669"}">
+                    ${(cow.body_temp || 38.6).toFixed(1)}°C ${cow.body_temp > 39.5 ? "(Fever)" : ""}
+                  </strong>
+                </div>
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">DAILY MILK YIELD</span>
+                  <strong style="font-size:0.95rem; color:${yieldDropPct > 20 ? "#dc2626" : "#0f172a"}">
+                    ${current} L <span style="font-size:0.72rem; color:#64748b;">(Base: ${baseline}L)</span>
+                  </strong>
+                </div>
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">LACTATION STAGE</span>
+                  <strong style="font-size:0.85rem; color:#0f172a;">
+                    Parity ${cow.parity || 2} • Day ${cow.days_in_milk || 50}
+                  </strong>
+                </div>
+                <div>
+                  <span style="color:#64748b; font-size:0.72rem; display:block;">AI RISK SCORE</span>
+                  <strong style="font-size:0.95rem; color:${risk === "HIGH" ? "#dc2626" : risk === "MEDIUM" ? "#d97706" : "#059669"}">
+                    ${(cow.risk_score || 10).toFixed(1)} / 100
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prescribed Treatment / Action Plan -->
+            <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:6px; padding:12px; font-size:0.82rem; line-height:1.5;">
+              <strong style="color:#0369a1; font-size:0.86rem; display:block; margin-bottom:4px;">📋 ICAR & Veterinary Recommended Action Plan:</strong>
+              ${rxPlan}
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="cow-modal-footer">
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn-voice-action" id="btnSpeakCowDossier" style="background:#0284c7; color:#ffffff; border-color:#0284c7;">
+                🔊 Listen to AI Audio Report
+              </button>
+              <button class="btn-voice-action" id="btnAskAiAboutCow">
+                💬 Ask AI About ${cow.name}
+              </button>
+            </div>
+            <button class="btn-voice-action" id="btnCloseCowModalFooter">
+              Close Dossier
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   // ─── AI Voice Assistant View (Hero / Main Feature) ────────────────────────
   function renderVoiceAssistantView() {
     const totalCattle = state.cattle.length || 8;
@@ -429,6 +758,56 @@
           </div>
         </div>
 
+        <!-- Instant Cattle Database Search & Filter Widget -->
+        <div class="cow-search-widget">
+          <div class="cow-search-header-row">
+            <div class="cow-search-title">
+              <span>⚡ Instant Cattle Database Telemetry Lookup</span>
+              <span style="font-size:0.72rem; background:#e0f2fe; color:#0369a1; padding:2px 8px; border-radius:10px; font-weight:700;">
+                ${state.cattle.length || 10} Animals Monitored
+              </span>
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+              Instant typeahead search • Sub-millisecond lookup
+            </span>
+          </div>
+
+          <div class="cow-search-bar">
+            <span class="cow-search-icon">🔍</span>
+            <input
+              type="text"
+              class="cow-search-input"
+              id="cowSearchInput"
+              placeholder="Type cow name (Kaveri, Lakshmi, Kamdhenu, Gauri), ID (COW-108, COW-101), Tag, or Breed..."
+              value="${state.cowSearchQuery || ""}"
+              autocomplete="off"
+            />
+            <button class="btn-clear-cow-search" id="btnClearCowSearch" title="Clear search" style="${state.cowSearchQuery ? "" : "display:none;"}">✖</button>
+          </div>
+
+          <!-- Quick Filter Strip -->
+          <div class="cow-filter-strip">
+            <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); margin-right:4px;">Filter:</span>
+            <button class="cow-filter-pill ${state.cowSearchFilter === "all" ? "active" : ""}" data-filter="all">
+              All Animals (${state.cattle.length})
+            </button>
+            <button class="cow-filter-pill danger ${state.cowSearchFilter === "HIGH" ? "active" : ""}" data-filter="HIGH">
+              🚨 High Risk (${state.cattle.filter((c) => c.risk_level === "HIGH").length})
+            </button>
+            <button class="cow-filter-pill warning ${state.cowSearchFilter === "MEDIUM" ? "active" : ""}" data-filter="MEDIUM">
+              ⚠️ Subclinical 48h (${state.cattle.filter((c) => c.risk_level === "MEDIUM").length})
+            </button>
+            <button class="cow-filter-pill safe ${state.cowSearchFilter === "LOW" ? "active" : ""}" data-filter="LOW">
+              🟢 Healthy (${state.cattle.filter((c) => c.risk_level === "LOW").length})
+            </button>
+          </div>
+
+          <!-- Live Instant Results Grid -->
+          <div class="cow-search-results-grid" id="cowSearchResultsGrid">
+            ${renderCowSearchCards(getFilteredCows())}
+          </div>
+        </div>
+
         <!-- Central Interactive Microphone Console -->
         <div class="voice-console-center">
           <div class="mic-btn-wrapper">
@@ -452,7 +831,7 @@
                 ? "🎙️ Listening... Speak now into your microphone."
                 : state.voiceProcessing
                 ? "⏳ Analyzing query & bovine knowledge via AI model..."
-                : "Click microphone to speak, or click a question below"
+                : "Click microphone to speak, search cattle above, or click a question below"
             }
           </div>
 
@@ -476,6 +855,18 @@
         <div class="voice-chips-container">
           <div class="voice-chips-label">⚡ Real-World Clinical Questions (Click to Ask AI Instantly):</div>
           <div class="voice-chips">
+            <button class="voice-chip" data-query="Search cow Kaveri COW-108 details">
+              🔍 Kaveri (COW-108 Acute Alert)
+            </button>
+            <button class="voice-chip" data-query="Search cow Kamdhenu COW-102 details">
+              🔍 Kamdhenu (COW-102 Subclinical)
+            </button>
+            <button class="voice-chip" data-query="Search cow Lakshmi COW-101 details">
+              🔍 Lakshmi (COW-101 Gir Healthy)
+            </button>
+            <button class="voice-chip" data-query="Search cow Gauri COW-107 details">
+              🔍 Gauri (COW-107 Murrah Buffalo)
+            </button>
             <button class="voice-chip" data-query="Can humans drink milk from a cow with mastitis?">
               🥛 Can humans drink mastitic milk?
             </button>
@@ -523,6 +914,7 @@
             <div class="chat-bubble ${msg.sender}">
               <div class="bubble-content">
                 ${msg.text}
+                ${msg.cattle_data ? renderInChatCattleCard(msg.cattle_data) : ""}
               </div>
               <div class="bubble-meta">
                 <span>${msg.sender === "user" ? "👨‍🌾 " + (state.user.name || "Kundan Pal") : "🤖 LactoGuard AI Assistant"}</span>
@@ -582,6 +974,8 @@
           <span class="stat-sub">Early Phytotherapy ROI</span>
         </div>
       </div>
+
+      ${renderCowDossierModal()}
     `;
   }
 
@@ -847,6 +1241,7 @@
           sender: "ai",
           text: reply,
           source: data.source || "LactoGuard AI",
+          cattle_data: data.cattle_data || null,
           timestamp: data.timestamp || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         });
         speakText(reply);
@@ -930,6 +1325,118 @@
         if (window.speechSynthesis) window.speechSynthesis.cancel();
         state.speechSynthesisActive = false;
         if (eq) eq.classList.remove("active");
+      };
+    }
+
+    // ── Cow Instant Search & Dossier Listeners ──
+    const cowSearchInput = document.getElementById("cowSearchInput");
+    const cowResultsGrid = document.getElementById("cowSearchResultsGrid");
+    const btnClearCowSearch = document.getElementById("btnClearCowSearch");
+
+    function bindCowCardClicks() {
+      document.querySelectorAll(".cow-search-card").forEach((card) => {
+        card.onclick = () => {
+          const cowId = card.dataset.cowId;
+          const cow = state.cattle.find((c) => c.id === cowId);
+          if (cow) {
+            state.selectedDossierCow = cow;
+            render();
+          }
+        };
+      });
+    }
+
+    if (cowSearchInput && cowResultsGrid) {
+      cowSearchInput.oninput = (e) => {
+        state.cowSearchQuery = e.target.value;
+        cowResultsGrid.innerHTML = renderCowSearchCards(getFilteredCows());
+        bindCowCardClicks();
+        if (btnClearCowSearch) {
+          btnClearCowSearch.style.display = state.cowSearchQuery ? "block" : "none";
+        }
+      };
+
+      cowSearchInput.onkeydown = (e) => {
+        if (e.key === "Enter") {
+          const filtered = getFilteredCows();
+          if (filtered.length > 0) {
+            state.selectedDossierCow = filtered[0];
+            render();
+          }
+        }
+      };
+    }
+
+    if (btnClearCowSearch) {
+      btnClearCowSearch.onclick = () => {
+        state.cowSearchQuery = "";
+        if (cowSearchInput) {
+          cowSearchInput.value = "";
+          cowSearchInput.focus();
+        }
+        if (cowResultsGrid) {
+          cowResultsGrid.innerHTML = renderCowSearchCards(getFilteredCows());
+        }
+        bindCowCardClicks();
+        btnClearCowSearch.style.display = "none";
+      };
+    }
+
+    // Filter pills
+    document.querySelectorAll(".cow-filter-pill").forEach((pill) => {
+      pill.onclick = () => {
+        state.cowSearchFilter = pill.dataset.filter || "all";
+        render();
+      };
+    });
+
+    // Bind card clicks
+    bindCowCardClicks();
+
+    // Modal listeners
+    const closeCowModalBtn = document.getElementById("btnCloseCowModal");
+    const closeCowModalFooter = document.getElementById("btnCloseCowModalFooter");
+    const modalBackdrop = document.getElementById("cowDossierModalBackdrop");
+    const speakCowDossierBtn = document.getElementById("btnSpeakCowDossier");
+    const askAiAboutCowBtn = document.getElementById("btnAskAiAboutCow");
+
+    if (closeCowModalBtn) {
+      closeCowModalBtn.onclick = () => {
+        state.selectedDossierCow = null;
+        render();
+      };
+    }
+    if (closeCowModalFooter) {
+      closeCowModalFooter.onclick = () => {
+        state.selectedDossierCow = null;
+        render();
+      };
+    }
+    if (modalBackdrop) {
+      modalBackdrop.onclick = (e) => {
+        if (e.target === modalBackdrop) {
+          state.selectedDossierCow = null;
+          render();
+        }
+      };
+    }
+
+    if (speakCowDossierBtn && state.selectedDossierCow) {
+      speakCowDossierBtn.onclick = () => {
+        const cow = state.selectedDossierCow;
+        const maxEc = Math.max(cow.ec_lf || 0, cow.ec_rf || 0, cow.ec_lh || 0, cow.ec_rh || 0).toFixed(2);
+        const audioText = `Clinical report for ${cow.name}, ID ${cow.id}. Mastitis risk is ${cow.risk_level}. Maximum udder conductivity is ${maxEc} milliSiemens per centimeter. Somatic cell count is ${(cow.scc || 150000).toLocaleString()} cells per milliliter. Daily milk yield is ${cow.milk_yield} liters. ${cow.risk_level === "HIGH" ? "Immediate veterinary care and quarter isolation is required." : cow.risk_level === "MEDIUM" ? "Apply ICAR herbal aloe turmeric lime paste three times daily for 5 days." : "Cow is in healthy condition."}`;
+        speakText(audioText);
+      };
+    }
+
+    if (askAiAboutCowBtn && state.selectedDossierCow) {
+      askAiAboutCowBtn.onclick = () => {
+        const cow = state.selectedDossierCow;
+        state.selectedDossierCow = null;
+        render();
+        const query = `Give me full diagnostic details for ${cow.name} (${cow.id}) and treatment steps`;
+        handleUserVoiceQuery(query);
       };
     }
   }
@@ -1259,8 +1766,9 @@
                 <td>${c.ec_lf || 4.8} / ${c.ec_rf || 4.8} / ${c.ec_lh || 4.8} / <strong style="${(c.ec_rh || 4.8) >= 6.0 ? "color:#dc2626;" : ""}">${c.ec_rh || 4.8}</strong></td>
                 <td><span class="badge-pill badge-${c.risk_level === "HIGH" ? "danger" : c.risk_level === "MEDIUM" ? "warning" : "safe"}">${c.risk_level}</span></td>
                 <td>
-                  <a href="javascript:void(0)" onclick="window.runQuickCheckOnCow('${c.id}')" style="font-weight:bold;">[⚡ AI Scan]</a>
-                  <a href="javascript:void(0)" onclick="window.inspectCow('${c.id}')" style="margin-left:6px;">[📋 Log]</a>
+                  <a href="javascript:void(0)" onclick="window.openCowDossier('${c.id}')" style="font-weight:bold; color:#0284c7;">[🔍 Dossier]</a>
+                  <a href="javascript:void(0)" onclick="window.runQuickCheckOnCow('${c.id}')" style="margin-left:4px; font-weight:bold;">[⚡ AI Scan]</a>
+                  <a href="javascript:void(0)" onclick="window.inspectCow('${c.id}')" style="margin-left:4px;">[📋 Log]</a>
                 </td>
               </tr>
             `
@@ -1310,11 +1818,11 @@
               </div>
 
               <div style="display:flex; gap:8px;">
-                <button class="btn-primary" style="flex:1; padding:8px; font-size:0.82rem;" onclick="window.runQuickCheckOnCow('${c.id}')">
-                  ⚡ Check with AI
+                <button class="btn-primary" style="flex:1; padding:8px; font-size:0.82rem;" onclick="window.openCowDossier('${c.id}')">
+                  🔍 View Dossier
                 </button>
-                <button class="btn-secondary" style="padding:8px 12px; font-size:0.82rem;" onclick="window.inspectCow('${c.id}')">
-                  📋 Log
+                <button class="btn-secondary" style="padding:8px 10px; font-size:0.82rem;" onclick="window.runQuickCheckOnCow('${c.id}')">
+                  ⚡ AI Scan
                 </button>
               </div>
             </div>
@@ -1357,6 +1865,7 @@
           </form>
         </div>
       </div>
+      ${renderCowDossierModal()}
     `;
   }
 
@@ -2156,6 +2665,14 @@ PREVENTED    : Est. ₹${pred.economic_impact.saved_by_early_forecast_inr.toLoca
     state.currentView = viewName;
     render();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  window.openCowDossier = (cowId) => {
+    const cow = state.cattle.find((c) => c.id === cowId);
+    if (cow) {
+      state.selectedDossierCow = cow;
+      render();
+    }
   };
 
   window.inspectCow = (cowId) => {

@@ -93,30 +93,46 @@ def init_db():
     )
     """)
 
-    # Check if cattle table is empty, if so, seed sample realistic Indian dairy herd
-    cur.execute("SELECT COUNT(*) FROM cattle")
-    if cur.fetchone()[0] == 0:
-        now_iso = datetime.now(timezone.utc).isoformat()
-        sample_cattle = [
-            ("COW-101", "Lakshmi (लक्ष्मी)", "TAG-IND-801", "Gir (गीर)", 4.5, 2, 110, 18.2, 18.5, "LOW", 10.2, now_iso, 4.8, 4.9, 4.7, 4.8, 120000, 38.5, 6.6),
-            ("COW-102", "Kamdhenu (कामधेनु)", "TAG-IND-802", "Sahiwal (साहीवाल)", 5.0, 3, 45, 13.8, 16.0, "MEDIUM", 68.4, now_iso, 4.9, 5.0, 4.9, 6.4, 290000, 38.9, 6.8),
-            ("COW-103", "Ganga (गंगा)", "TAG-IND-803", "Murrah Buffalo (मुर्रा भैंस)", 6.0, 3, 140, 14.5, 14.8, "LOW", 12.5, now_iso, 4.7, 4.8, 4.8, 4.7, 140000, 38.4, 6.62),
-            ("COW-104", "Meera (मीरा)", "TAG-IND-804", "HF Cross (होल्सटीन संकर)", 3.5, 2, 35, 9.0, 19.5, "HIGH", 98.5, now_iso, 7.8, 5.2, 5.1, 5.3, 780000, 40.1, 7.25),
-            ("COW-105", "Radha (राधा)", "TAG-IND-805", "Tharparkar (थारपारकर)", 4.0, 2, 95, 12.5, 12.8, "LOW", 14.0, now_iso, 4.8, 4.7, 4.9, 4.8, 160000, 38.6, 6.6),
-            ("COW-106", "Nandini (नंदिनी)", "TAG-IND-806", "Rathi (राठी)", 3.0, 1, 160, 11.2, 11.5, "LOW", 9.8, now_iso, 4.6, 4.7, 4.7, 4.8, 110000, 38.5, 6.58),
-        ]
-        cur.executemany("""
-        INSERT INTO cattle (id, name, tag_number, breed, age_years, parity, days_in_milk, milk_yield, baseline_yield, risk_level, risk_score, last_checked, ec_lf, ec_rf, ec_lh, ec_rh, scc, body_temp, milk_ph)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, sample_cattle)
+    # Seed or expand realistic Indian dairy herd
+    now_iso = datetime.now(timezone.utc).isoformat()
+    sample_cattle = [
+        ("COW-101", "Lakshmi (लक्ष्मी)", "TAG-IND-801", "Gir (गीर)", 4.5, 2, 110, 18.2, 18.5, "LOW", 10.2, now_iso, 4.8, 4.9, 4.7, 4.8, 120000, 38.5, 6.6),
+        ("COW-102", "Kamdhenu (कामधेनु)", "TAG-IND-802", "Sahiwal (साहीवाल)", 5.0, 3, 45, 13.8, 16.0, "MEDIUM", 68.4, now_iso, 4.9, 5.0, 4.9, 6.4, 290000, 38.9, 6.8),
+        ("COW-103", "Ganga (गंगा)", "TAG-IND-803", "Murrah Buffalo (मुर्रा भैंस)", 6.0, 3, 140, 14.5, 14.8, "LOW", 12.5, now_iso, 4.7, 4.8, 4.8, 4.7, 140000, 38.4, 6.62),
+        ("COW-104", "Meera (मीरा)", "TAG-IND-804", "HF Cross (होल्सटीन संकर)", 3.5, 2, 35, 9.0, 19.5, "HIGH", 98.5, now_iso, 7.8, 5.2, 5.1, 5.3, 780000, 40.1, 7.25),
+        ("COW-105", "Radha (राधा)", "TAG-IND-805", "Tharparkar (थारपारकर)", 4.0, 2, 95, 12.5, 12.8, "LOW", 14.0, now_iso, 4.8, 4.7, 4.9, 4.8, 160000, 38.6, 6.6),
+        ("COW-106", "Nandini (नंदिनी)", "TAG-IND-806", "Rathi (राठी)", 3.0, 1, 160, 11.2, 11.5, "LOW", 9.8, now_iso, 4.6, 4.7, 4.7, 4.8, 110000, 38.5, 6.58),
+        ("COW-107", "Gauri (गौरी)", "TAG-IND-807", "Murrah Buffalo (मुर्रा भैंस)", 5.5, 3, 75, 12.0, 15.5, "MEDIUM", 64.5, now_iso, 6.82, 5.2, 5.1, 5.3, 380000, 38.8, 6.92),
+        ("COW-108", "Kaveri (कावेरी)", "TAG-IND-808", "HF Cross (होल्सटीन संकर)", 4.0, 2, 40, 8.5, 20.0, "HIGH", 98.8, now_iso, 8.12, 5.4, 5.3, 5.5, 980000, 40.2, 7.30),
+        ("COW-109", "Yamuna (यमुना)", "TAG-IND-809", "Murrah Buffalo (मुर्रा भैंस)", 6.5, 4, 130, 15.2, 15.5, "LOW", 11.0, now_iso, 4.8, 4.7, 4.8, 4.9, 135000, 38.5, 6.64),
+        ("COW-110", "Saraswati (सरस्वती)", "TAG-IND-810", "Gir (गीर)", 3.8, 2, 90, 17.5, 18.0, "LOW", 10.5, now_iso, 4.7, 4.8, 4.6, 4.7, 125000, 38.4, 6.60),
+    ]
+    cur.executemany("""
+    INSERT OR REPLACE INTO cattle (id, name, tag_number, breed, age_years, parity, days_in_milk, milk_yield, baseline_yield, risk_level, risk_score, last_checked, ec_lf, ec_rf, ec_lh, ec_rh, scc, body_temp, milk_ph)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, sample_cattle)
 
-        # Seed initial alerts
+    # Seed alerts if empty
+    cur.execute("SELECT COUNT(*) FROM alerts")
+    if cur.fetchone()[0] == 0:
         sample_alerts = [
+            ("COW-108", "Kaveri (कावेरी)", "CLINICAL_MASTITIS", "HIGH",
+             "Emergency: Acute Clinical Mastitis in Left Front Quarter!",
+             "आपातकालीन: बाएँ अगले थन में गंभीर थनैला रोग पाया गया!",
+             "Udder temperature 40.2°C with severe milk yield drop (-57%). Left front EC 8.12 mS/cm, SCC 980k. Veterinary intervention urgently required.",
+             "बाएँ अगले थन में कंडक्टिविटी 8.12 mS/cm और तापमान 40.2°C। तुरंत डॉक्टर से संपर्क करें।",
+             now_iso, 0),
             ("COW-104", "Meera (मीरा)", "CLINICAL_MASTITIS", "HIGH",
              "Emergency: Acute Clinical Mastitis in Left Front Quarter!",
              "आपातकालीन: बाएँ अगले थन में गंभीर थनैला रोग पाया गया!",
              "Udder temperature 40.1°C with severe milk yield drop (-53%). Veterinary intervention urgently required.",
              "थन का तापमान 40.1°C और दूध में भारी गिरावट (-53%)। तुरंत डॉक्टर से संपर्क करें।",
+             now_iso, 0),
+            ("COW-107", "Gauri (गौरी)", "SUBCLINICAL_FORECAST", "MEDIUM",
+             "48-Hour Early Warning: Subclinical Mastitis Detected in Left Front Quarter",
+             "48 घंटे पूर्व चेतावनी: बाएँ अगले थन में सबक्लिनिकल थनैला का संकेत",
+             "Conductivity spike to 6.82 mS/cm with 22.5% yield drop. Apply ICAR Herbal Phytotherapy paste immediately.",
+             "बाएँ अगले थन में कंडक्टिविटी 6.82 mS/cm पहुंची। आईसीएआर हर्बल हल्दी-एलोवेरा लेप तुरंत लगाएं।",
              now_iso, 0),
             ("COW-102", "Kamdhenu (कामधेनु)", "SUBCLINICAL_FORECAST", "MEDIUM",
              "48-Hour Early Warning: Subclinical Mastitis Detected in Right Hind Quarter",
@@ -199,6 +215,26 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
             rows = [dict(r) for r in cur.fetchall()]
             conn.close()
             self._send_json({"success": True, "count": len(rows), "data": rows})
+            return
+
+        if path == "/api/cattle/search":
+            query_params = parse_qs(parsed.query)
+            q = query_params.get("q", [""])[0].strip()
+            conn = sqlite3.connect(DB_PATH)
+            conn.row_factory = sqlite3.Row
+            cur = conn.cursor()
+            if q:
+                pattern = f"%{q}%"
+                cur.execute("""
+                SELECT * FROM cattle 
+                WHERE name LIKE ? OR tag_number LIKE ? OR id LIKE ? OR breed LIKE ? OR risk_level LIKE ?
+                ORDER BY risk_score DESC
+                """, (pattern, pattern, pattern, pattern, pattern))
+            else:
+                cur.execute("SELECT * FROM cattle ORDER BY risk_score DESC")
+            rows = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            self._send_json({"success": True, "count": len(rows), "query": q, "data": rows})
             return
 
         if path.startswith("/api/cattle/"):
@@ -482,6 +518,7 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
                     "query": query,
                     "response": res["response"],
                     "source": res["source"],
+                    "cattle_data": res.get("cattle_data"),
                     "timestamp": res["timestamp"]
                 })
             else:

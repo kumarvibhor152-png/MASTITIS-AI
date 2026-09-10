@@ -366,6 +366,123 @@ def extract_numbers_and_diagnose(user_query):
     return None
 
 
+# ─── 3.5. INSTANT DATABASE CATTLE SEARCH ───
+def search_cattle_in_db(user_query):
+    """
+    Searches the SQLite cattle database for matching cattle by name, ID, tag, or breed.
+    Returns: (formatted_dossier, matched_cow_dict) or (None, None)
+    """
+    import sqlite3
+    db_file = os.path.join(BASE_DIR, "mastai.db")
+    if not os.path.exists(db_file):
+        return None, None
+
+    q_lower = user_query.lower()
+    
+    # Check for direct ID patterns: COW-101, COW-04, 101, 108, TAG-IND-801
+    id_match = re.search(r"\b(cow[-\s]?\d{1,3}|tag[-\s]ind[-\s]?\d{1,3})\b", q_lower)
+    
+    try:
+        conn = sqlite3.connect(db_file, timeout=5)
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM cattle")
+        all_cows = [dict(r) for r in cur.fetchall()]
+        conn.close()
+    except Exception as e:
+        print(f"[DB Search Error] {e}")
+        return None, None
+
+    matched_cow = None
+    
+    # 1. Match by specific ID or Tag
+    if id_match:
+        target_token = re.sub(r"[-\s]", "", id_match.group(1)).upper()
+        for c in all_cows:
+            cid_clean = re.sub(r"[-\s]", "", c["id"]).upper()
+            ctag_clean = re.sub(r"[-\s]", "", c["tag_number"]).upper()
+            if target_token in cid_clean or target_token in ctag_clean or cid_clean in target_token:
+                matched_cow = c
+                break
+
+    # 2. Match by Name (Lakshmi, Kamdhenu, Ganga, Meera, Radha, Nandini, Gauri, Kaveri, Yamuna, Saraswati)
+    if not matched_cow:
+        for c in all_cows:
+            raw_name = c["name"]
+            simple_names = re.findall(r"[\w\u0900-\u097F]+", raw_name.lower())
+            for s_name in simple_names:
+                if len(s_name) >= 3 and s_name in q_lower:
+                    matched_cow = c
+                    break
+            if matched_cow:
+                break
+
+    # 3. Match by Breed
+    if not matched_cow and ("cow" in q_lower or "buffalo" in q_lower or "search" in q_lower):
+        for c in all_cows:
+            b_words = re.findall(r"[\w]+", c["breed"].lower())
+            if any(len(bw) >= 4 and bw in q_lower for bw in b_words):
+                matched_cow = c
+                break
+
+    if not matched_cow:
+        return None, None
+
+    c = matched_cow
+    risk = c.get("risk_level", "LOW")
+    score = c.get("risk_score", 0.0)
+    cur_yield = c.get("milk_yield", 0.0)
+    base_yield = c.get("baseline_yield", cur_yield)
+    yield_drop = round(((base_yield - cur_yield) / base_yield) * 100, 1) if base_yield > 0 else 0.0
+    
+    ec_lf = c.get("ec_lf", 4.8)
+    ec_rf = c.get("ec_rf", 4.8)
+    ec_lh = c.get("ec_lh", 4.8)
+    ec_rh = c.get("ec_rh", 4.8)
+    scc = c.get("scc", 150000)
+    temp = c.get("body_temp", 38.5)
+    ph = c.get("milk_ph", 6.6)
+    
+    infected_q = []
+    if ec_lf >= 7.0: infected_q.append(f"Left Front ({ec_lf} mS/cm - Acute)")
+    elif ec_lf >= 5.5: infected_q.append(f"Left Front ({ec_lf} mS/cm - Subclinical)")
+    
+    if ec_rf >= 7.0: infected_q.append(f"Right Front ({ec_rf} mS/cm - Acute)")
+    elif ec_rf >= 5.5: infected_q.append(f"Right Front ({ec_rf} mS/cm - Subclinical)")
+
+    if ec_lh >= 7.0: infected_q.append(f"Left Hind ({ec_lh} mS/cm - Acute)")
+    elif ec_lh >= 5.5: infected_q.append(f"Left Hind ({ec_lh} mS/cm - Subclinical)")
+
+    if ec_rh >= 7.0: infected_q.append(f"Right Hind ({ec_rh} mS/cm - Acute)")
+    elif ec_rh >= 5.5: infected_q.append(f"Right Hind ({ec_rh} mS/cm - Subclinical)")
+
+    header_icon = "🚨" if risk == "HIGH" else ("⚠️" if risk == "MEDIUM" else "🟢")
+    
+    dossier = (
+        f"{header_icon} Instant Database Record for {c['name']} [ID: {c['id']} | Tag: {c['tag_number']}]:\n"
+        f"• Breed: {c['breed']} | Age: {c['age_years']} yrs | Lactation Parity: {c['parity']} | Days in Milk: {c['days_in_milk']} days\n"
+        f"• Daily Milk Yield: {cur_yield} L (Baseline: {base_yield} L, Yield Drop: {yield_drop}%)\n"
+        f"• 4-Quarter Conductivity: Left Front={ec_lf}, Right Front={ec_rf}, Left Hind={ec_lh}, Right Hind={ec_rh} mS/cm\n"
+        f"• Somatic Cell Count: {scc:,} cells/mL | Body Temp: {temp}°C | Milk pH: {ph}\n"
+        f"• Health Risk Level: {risk} (Diagnostic Score: {score}/100)\n"
+    )
+
+    if risk == "HIGH":
+        dossier += (
+            f"• ⚠️ Action Plan: Acute clinical mastitis confirmed in {', '.join(infected_q) if infected_q else 'udder'}. "
+            "Isolate cow immediately, milk last into discard bucket, strip quarter 3x daily, administer Meloxicam (0.5 mg/kg) for pain, and consult veterinarian for antibiotic infusion. Discard all milk."
+        )
+    elif risk == "MEDIUM":
+        dossier += (
+            f"• ⚠️ Action Plan: Subclinical mastitis warning in {', '.join(infected_q) if infected_q else 'udder'}. "
+            "Apply ICAR Herbal Paste (Aloe Vera 250g + Turmeric 50g + Lime 15g) 3 times daily for 5 days after complete milking."
+        )
+    else:
+        dossier += "• 🟢 Status: All 4 quarters are healthy and within optimal parameters. Maintain standard 0.5% povidone-iodine post-milking teat dipping."
+
+    return dossier, matched_cow
+
+
 # ─── 4. TRAINED BOVINE NLP MODEL INFERENCE (qa_nlp_model.joblib) ───
 def query_trained_nlp_model(user_query, confidence_threshold=0.18):
     """
@@ -459,17 +576,47 @@ def ask_voice_assistant(user_query):
     q_clean = user_query.strip()
     timestamp = time.strftime("%H:%M:%S")
 
-    # Step 1: Try Primary Groq Cloud AI
-    groq_resp, groq_src = call_groq_api(q_clean)
+    # Step 1: Check Instant Cattle Database Search
+    cow_dossier, matched_cow = search_cattle_in_db(q_clean)
+    if cow_dossier:
+        q_lower = q_clean.lower()
+        is_direct_search = (
+            any(w in q_lower for w in ["search", "detail", "status", "check", "find", "record", "telemetry", "dossier", "how is", "show", "tell me about", "kaisa", "kaisi", "kaun"])
+            or bool(re.search(r"\b(cow[-\s]?\d{1,3}|tag[-\s]ind[-\s]?\d{1,3})\b", q_lower))
+            or len(q_clean.split()) <= 3
+        )
+        if is_direct_search:
+            return {
+                "response": cow_dossier,
+                "source": f"LactoGuard Database ({matched_cow['name']})",
+                "cattle_data": matched_cow,
+                "timestamp": timestamp
+            }
+
+    # Step 2: Try Primary Groq Cloud AI
+    prompt_for_ai = q_clean
+    if matched_cow:
+        prompt_for_ai = f"[Live Database Context: Cow {matched_cow['name']} ({matched_cow['id']}), Risk={matched_cow['risk_level']}, EC={matched_cow['ec_lf']} mS/cm, SCC={matched_cow['scc']}, Temp={matched_cow['body_temp']}°C]\n{q_clean}"
+
+    groq_resp, groq_src = call_groq_api(prompt_for_ai)
     if groq_resp:
         return {"response": groq_resp, "source": groq_src, "timestamp": timestamp}
 
-    # Step 2: Try Secondary Gemini / OpenAI
-    gemini_resp, gemini_src = call_gemini_api(q_clean)
+    # Step 3: Try Secondary Gemini / OpenAI
+    gemini_resp, gemini_src = call_gemini_api(prompt_for_ai)
     if gemini_resp:
         return {"response": gemini_resp, "source": gemini_src, "timestamp": timestamp}
 
-    # Step 3: Numeric Sensor Telemetry Diagnosis via trained XGBoost model
+    # If cow was found but wasn't a direct search, and external AI is offline, return the dossier!
+    if cow_dossier:
+        return {
+            "response": cow_dossier,
+            "source": f"LactoGuard Database ({matched_cow['name']})",
+            "cattle_data": matched_cow,
+            "timestamp": timestamp
+        }
+
+    # Step 4: Numeric Sensor Telemetry Diagnosis via trained XGBoost model
     sensor_diag = extract_numbers_and_diagnose(q_clean)
     if sensor_diag:
         return {
@@ -478,7 +625,7 @@ def ask_voice_assistant(user_query):
             "timestamp": timestamp
         }
 
-    # Step 4: Trained Bovine NLP Intent & Semantic Model
+    # Step 5: Trained Bovine NLP Intent & Semantic Model
     nlp_ans, nlp_score = query_trained_nlp_model(q_clean, confidence_threshold=0.18)
     if nlp_ans:
         return {
