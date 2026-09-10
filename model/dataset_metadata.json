@@ -1,0 +1,101 @@
+{
+  "model_name": "LactoGuard XGBoost Mastitis Diagnostic Engine",
+  "dataset_records_count": 2500,
+  "features": [
+    "ec_lf",
+    "ec_rf",
+    "ec_lh",
+    "ec_rh",
+    "max_ec",
+    "ec_variance",
+    "scc",
+    "body_temp_c",
+    "milk_ph",
+    "yield_drop_pct",
+    "udder_swelling",
+    "kicking_behavior"
+  ],
+  "accuracy_pct": 100.0,
+  "mae_loss_inr": 594.15,
+  "class_distribution": {
+    "LOW": 1481,
+    "MEDIUM": 626,
+    "HIGH": 393
+  },
+  "breeds_represented": [
+    "Gir",
+    "Murrah Buffalo",
+    "Sahiwal",
+    "HF Cross",
+    "Red Sindhi",
+    "Tharparkar",
+    "Rathi"
+  ],
+  "mean_scc": {
+    "healthy": 129236,
+    "subclinical": 321645,
+    "clinical": 1204689
+  },
+  "mean_ec_ms_cm": {
+    "healthy": 4.88,
+    "subclinical": 6.65,
+    "clinical": 7.69
+  },
+  "mean_loss_inr": {
+    "healthy": 0,
+    "subclinical": 8096,
+    "clinical": 41886
+  },
+  "icar_remedies": {
+    "herbal_paste": "Aloe vera (250g) + Turmeric powder (50g) + Calcium hydroxide / Chuna (15g). Grind to paste, dilute with water, apply externally on udder 3 times daily for 5 days after thorough milking.",
+    "sanitation": "Post-milking teat dip in 0.5% povidone-iodine solution. Keep animals standing for 45 minutes after milking.",
+    "prevention": "Routine California Mastitis Test (CMT) weekly and IoT electrical conductivity monitoring."
+  },
+  "farm_context": {
+    "owner": "Kundan Pal",
+    "farm_name": "Surabhi Dairy Farm",
+    "total_cows": 8,
+    "cows": [
+      {
+        "id": "COW-01",
+        "name": "Gauri",
+        "breed": "Murrah Buffalo"
+      },
+      {
+        "id": "COW-02",
+        "name": "Lakshmi",
+        "breed": "Gir"
+      },
+      {
+        "id": "COW-03",
+        "name": "Nandini",
+        "breed": "Sahiwal"
+      },
+      {
+        "id": "COW-04",
+        "name": "Kaveri",
+        "breed": "HF Cross"
+      },
+      {
+        "id": "COW-05",
+        "name": "Radha",
+        "breed": "Jersey Cross"
+      },
+      {
+        "id": "COW-06",
+        "name": "Ganga",
+        "breed": "Gir"
+      },
+      {
+        "id": "COW-07",
+        "name": "Yamuna",
+        "breed": "Murrah Buffalo"
+      },
+      {
+        "id": "COW-08",
+        "name": "Saraswati",
+        "breed": "Sahiwal"
+      }
+    ]
+  }
+}

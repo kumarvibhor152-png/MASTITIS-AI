@@ -2,71 +2,89 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>LactoGuard — Precision Dairy Health & Mastitis Forecasting</title>
-  <meta name="description" content="AI-based predictive modelling for early forecasting of bovine mastitis in dairy cattle. Smart India Hackathon 2024 Problem Statement 109.">
-  <meta name="theme-color" content="#064e3b">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LactoGuard: The Bovine Mastitis Early Warning System</title>
+  <meta name="description" content="LactoGuard Free AI-based predictive modelling for early forecasting of bovine mastitis in dairy cattle. Smart India Hackathon 2024 #109.">
+  <meta name="theme-color" content="#0284c7">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-
-  <!-- Top Farmer Header -->
-  <header class="app-header">
-    <div class="brand-section">
-      <div class="brand-logo-icon" style="display:flex; align-items:center; justify-content:center; font-size:24px; line-height:1;">
-        𓃔
+  <div id="nst-wrapper">
+    <!-- Top Nmap-Style Header -->
+    <header id="nst-head" class="app-header">
+      <div class="brand-section">
+        <a id="nst-logo" href="#voice" onclick="window.showView && window.showView('voice'); return false;" aria-label="LactoGuard Home">
+          <span class="brand-logo-icon">𓃔</span>
+          <div class="brand-text">
+            <span class="brand-title" id="headerAppName">LactoGuard</span>
+            <span class="brand-subtitle" id="headerAppTagline">Free Bovine Mastitis Early Warning System</span>
+          </div>
+        </a>
       </div>
-      <div>
-        <div class="brand-title" id="headerAppName">LactoGuard</div>
-        <div class="brand-subtitle" id="headerAppTagline">Precision Bovine Health Intelligence System</div>
+
+      <!-- Global Nmap Nav Links -->
+      <nav id="nst-gnav">
+        <a class="nlink" href="#voice" onclick="window.showView && window.showView('voice'); return false;">🎙️ AI Voice Assistant</a>
+        <a class="nlink" href="#analytics" onclick="window.showView && window.showView('analytics'); return false;">📈 Advanced Analytics</a>
+        <a class="nlink" href="#predict" onclick="window.showView && window.showView('predict'); return false;">AI Scanner</a>
+        <a class="nlink" href="#cattle" onclick="window.showView && window.showView('cattle'); return false;">Herd</a>
+        <a class="nlink" href="#knowledge" onclick="window.showView && window.showView('knowledge'); return false;">SOP Docs</a>
+        <a class="nlink" href="#settings" onclick="window.showView && window.showView('settings'); return false;">Profile</a>
+      </nav>
+
+      <!-- Tools / Controls -->
+      <div class="header-controls">
+        <button class="mode-toggle-btn" id="modeToggleBtn" title="Switch between Kisan Mode and Vet Pro Mode">
+          <span>Kisan Mode</span>
+        </button>
+        <button class="sun-toggle-btn" id="sunToggleBtn" title="Toggle Outdoor Sunlight High Contrast Mode">
+          ☀️
+        </button>
+        <select class="lang-select" id="langSelect" aria-label="Select Language">
+          <!-- Populated dynamically by app.js -->
+        </select>
       </div>
-    </div>
+    </header>
 
-    <div class="header-controls">
-      <!-- Mode Toggle (Kisan vs Vet) -->
-      <button class="mode-toggle-btn" id="modeToggleBtn" title="Switch between Kisan Simple Mode and Vet Pro Mode">
-        <span>Kisan Mode</span>
-      </button>
-
-      <!-- Sunlight High Contrast Toggle for Barn Use -->
-      <button class="sun-toggle-btn" id="sunToggleBtn" title="Toggle Outdoor Sunlight High Contrast Mode">
-        
-      </button>
-
-      <!-- Language Selector (10 Indian Languages) -->
-      <select class="lang-select" id="langSelect" aria-label="Select Language">
+    <!-- Secondary Nmap Sitenav Ribbon -->
+    <nav id="nst-sitenav">
+      <div class="desktop-nav" id="desktopNav">
         <!-- Populated dynamically by app.js -->
-      </select>
-    </div>
-  </header>
+      </div>
+    </nav>
 
-  <!-- App Layout Container -->
-  <div class="app-container">
-    <!-- Desktop Sidebar Navigation -->
-    <aside class="desktop-nav" id="desktopNav">
-      <!-- Populated dynamically by app.js -->
-    </aside>
-
-    <!-- Main Viewport Area -->
-    <main class="main-viewport" id="mainViewport">
-      <!-- Populated dynamically by app.js -->
-      <div style="text-align:center; padding:50px;">
-        <div style="font-size:2rem; animation: pulse-ring 1s infinite;"></div>
-        <p style="margin-top:10px; color:#666;">Loading LactoGuard Dashboard...</p>
+    <!-- Main Content Viewport -->
+    <main id="nst-content" class="main-viewport">
+      <div id="mainViewport">
+        <div style="text-align:center; padding:40px;">
+          <p style="color:#555; font-size:0.95rem;">Loading LactoGuard AI Voice Assistant & Cattle Records...</p>
+        </div>
       </div>
     </main>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav"></nav>
+
+    <!-- Classic Nmap Utilitarian Footer -->
+    <footer id="nst-footer">
+      <div class="nst-footer-links">
+        <a href="#voice" onclick="window.showView && window.showView('voice'); return false;">🎙️ AI Voice Assistant</a> |
+        <a href="#analytics" onclick="window.showView && window.showView('analytics'); return false;">📈 Advanced Analytics</a> |
+        <a href="#predict" onclick="window.showView && window.showView('predict'); return false;">AI Mastitis Scanner</a> |
+        <a href="#cattle" onclick="window.showView && window.showView('cattle'); return false;">Cattle Registry</a> |
+        <a href="#knowledge" onclick="window.showView && window.showView('knowledge'); return false;">ICAR Phytotherapy SOP</a> |
+        <a href="#settings" onclick="window.showView && window.showView('settings'); return false;">Farmer Profile</a> |
+        <a href="https://github.com/kumarvibhor152-png/MASTITIS-AI" target="_blank" rel="noreferrer">GitHub Project</a>
+      </div>
+      <p class="nst-footer-summary">
+        <strong>LactoGuard</strong> — Open Bovine Mastitis Early Forecasting System | Smart India Hackathon Problem Statement 109<br>
+        Registered Farm: <strong>Surabhi Dairy Farm (Kundan Pal)</strong> • Emergency Veterinary Helpline: <strong>1962 (Toll-Free)</strong>
+      </p>
+    </footer>
   </div>
 
-  <!-- Mobile Bottom Navigation Bar -->
-  <nav class="mobile-bottom-nav" id="mobileBottomNav">
-    <!-- Populated dynamically by app.js -->
-  </nav>
-
-  <!-- Load Scripts -->
+  <!-- Scripts -->
   <script src="/locales.js"></script>
   <script src="/app.js"></script>
 </body>

@@ -5,10 +5,10 @@
 @tailwind utilities;
 
 :root {
-  --c-primary: #064e3b;
-  --c-primary-light: #059669;
-  --c-accent: #0d9488;
-  --c-safe: #059669;
+  --c-primary: #0369a1;
+  --c-primary-light: #0284c7;
+  --c-accent: #0284c7;
+  --c-safe: #0284c7;
   --c-warning: #d97706;
   --c-danger: #e11d48;
   --c-bg: #f8fafc;
