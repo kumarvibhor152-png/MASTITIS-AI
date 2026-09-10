@@ -1117,51 +1117,115 @@
       };
     }
 
+    let recognition = null;
+    let isListening = false;
+    let silenceTimer = null;
+    let maxTimeoutTimer = null;
+    let currentCapturedText = "";
+
     function setListeningState(listening) {
       state.voiceListening = listening;
+      isListening = listening;
       if (micBtn) {
         if (listening) {
           micBtn.classList.add("listening");
           micBtn.innerHTML = "🛑";
-          if (statusText) statusText.innerText = "🎙️ Listening... Speak now into your microphone.";
+          if (statusText) statusText.innerText = "🎙️ Listening... Speak your question now (or click 🛑 when finished).";
           if (eq) eq.classList.add("active");
         } else {
           micBtn.classList.remove("listening");
           micBtn.innerHTML = "🎙️";
-          if (statusText) statusText.innerText = "Click microphone to speak, or select a question below";
+          if (statusText) statusText.innerText = "Click microphone to speak, search cattle above, or select a question below";
           if (eq) eq.classList.remove("active");
         }
       }
     }
 
+    function stopAllListening() {
+      if (silenceTimer) clearTimeout(silenceTimer);
+      if (maxTimeoutTimer) clearTimeout(maxTimeoutTimer);
+      silenceTimer = null;
+      maxTimeoutTimer = null;
+      isListening = false;
+      if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+      }
+      setListeningState(false);
+    }
+
+    function finishAndSubmit(textToSubmit) {
+      const q = (textToSubmit || currentCapturedText || "").trim();
+      stopAllListening();
+      if (q) {
+        if (inputField) inputField.value = "";
+        currentCapturedText = "";
+        handleUserVoiceQuery(q);
+      }
+    }
+
     // Web Speech Recognition
-    let recognition = null;
     const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRec) {
       try {
         recognition = new SpeechRec();
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
         recognition.lang = state.lang === "hi" ? "hi-IN" : "en-IN";
 
         recognition.onresult = (event) => {
-          const transcript = event.results[0][0].transcript;
-          setListeningState(false);
-          if (transcript) {
-            handleUserVoiceQuery(transcript);
+          let interim = "";
+          let final = "";
+          for (let i = 0; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              final += transcript + " ";
+            } else {
+              interim += transcript;
+            }
+          }
+          const full = (final + interim).trim();
+          if (full) {
+            currentCapturedText = full;
+            if (inputField) inputField.value = full;
+            if (statusText) statusText.innerText = `🎙️ Hearing: "${full}"...`;
+
+            // Wait 2.5 seconds of sustained silence AFTER speech has been detected before submitting
+            if (silenceTimer) clearTimeout(silenceTimer);
+            silenceTimer = setTimeout(() => {
+              if (isListening && currentCapturedText) {
+                finishAndSubmit(currentCapturedText);
+              }
+            }, 2500);
           }
         };
 
         recognition.onerror = (event) => {
-          console.warn("Browser STT notice:", event.error);
-          setListeningState(false);
-          if (event.error !== "no-speech" && event.error !== "aborted") {
+          console.warn("Browser STT event:", event.error);
+          if (event.error === "no-speech") {
+            // Keep microphone alive! Do not abruptly cut off before user speaks.
+            return;
+          }
+          if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+            stopAllListening();
+            if (statusText) statusText.innerText = "Microphone access blocked. Click the lock/camera icon in your address bar to allow, or type below.";
             triggerBackendMic();
           }
         };
 
         recognition.onend = () => {
-          setListeningState(false);
+          // If still in listening mode, automatically restart to prevent browser premature timeout
+          if (isListening) {
+            try {
+              recognition.start();
+            } catch (err) {
+              if (currentCapturedText) {
+                finishAndSubmit(currentCapturedText);
+              } else {
+                stopAllListening();
+              }
+            }
+          }
         };
       } catch (e) {
         console.warn("SpeechRec init:", e);
@@ -1169,7 +1233,7 @@
     }
 
     async function triggerBackendMic() {
-      if (statusText) statusText.innerText = "🎙️ Listening via Python hardware microphone...";
+      if (statusText) statusText.innerText = "🎙️ Listening via Python hardware microphone (12s window)... Speak now!";
       if (micBtn) micBtn.classList.add("listening");
       if (eq) eq.classList.add("active");
       try {
@@ -1185,20 +1249,41 @@
       } finally {
         if (micBtn) micBtn.classList.remove("listening");
         if (eq) eq.classList.remove("active");
+        stopAllListening();
       }
     }
 
     function toggleMic() {
-      if (state.voiceListening) {
-        if (recognition) {
-          try { recognition.stop(); } catch (e) {}
+      if (isListening || state.voiceListening) {
+        // Stop clicked: if user has already spoken, submit it immediately!
+        const textToSubmit = currentCapturedText || (inputField ? inputField.value.trim() : "");
+        if (textToSubmit) {
+          finishAndSubmit(textToSubmit);
+        } else {
+          stopAllListening();
         }
-        setListeningState(false);
         return;
       }
+
+      currentCapturedText = "";
+      if (inputField) inputField.value = "";
+      setListeningState(true);
+
+      // Generous 20-second listening window so user has time to ask question
+      if (maxTimeoutTimer) clearTimeout(maxTimeoutTimer);
+      maxTimeoutTimer = setTimeout(() => {
+        if (isListening) {
+          if (currentCapturedText) {
+            finishAndSubmit(currentCapturedText);
+          } else {
+            stopAllListening();
+            if (statusText) statusText.innerText = "Listening window ended. Click 🎙️ to try again or type below.";
+          }
+        }
+      }, 20000);
+
       if (recognition) {
         try {
-          setListeningState(true);
           recognition.start();
         } catch (e) {
           triggerBackendMic();

@@ -166,7 +166,7 @@ tts_singleton = TTSEngine()
 
 
 # STT Helper
-def listen_to_microphone(timeout=5, phrase_time_limit=8):
+def listen_to_microphone(timeout=12, phrase_time_limit=18):
     """
     Listens to microphone input and converts to text using SpeechRecognition.
     Returns: {"text": str, "success": bool, "error": str}
@@ -175,13 +175,16 @@ def listen_to_microphone(timeout=5, phrase_time_limit=8):
         return {"text": "", "success": False, "error": "SpeechRecognition library not available."}
 
     recognizer = sr.Recognizer()
-    recognizer.energy_threshold = 300
+    recognizer.energy_threshold = 200
     recognizer.dynamic_energy_threshold = True
+    recognizer.pause_threshold = 2.0  # Allow natural speaking pauses without early cut-off
+    recognizer.phrase_threshold = 0.3
+    recognizer.non_speaking_duration = 0.8
 
     try:
         with sr.Microphone() as source:
             print("[Voice Assistant] Listening... Speak into your microphone.")
-            recognizer.adjust_for_ambient_noise(source, duration=0.5)
+            recognizer.adjust_for_ambient_noise(source, duration=0.6)
             audio = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
             text = recognizer.recognize_google(audio)
             return {"text": text, "success": True, "error": None}
