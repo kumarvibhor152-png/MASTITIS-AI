@@ -1,0 +1,91 @@
+# ==============================================================================
+# BOVINE CLINICAL & DAIRY MANAGEMENT DATASET (my_dataset.txt)
+# Curated for Retrieval-Augmented Generation (RAG) in Dairy Herd Management
+# ==============================================================================
+
+[SECTION: INDIGENOUS & CROSSBRED DAIRY BREEDS]
+1. Gir Cattle:
+Gir is a premier indigenous zebu dairy breed originating from the Gir hills of Gujarat. Characteristic features include convex protruding forehead, pendulous long curled ears resembling a folded leaf, and red, speckled, or red-and-white coat colors. Gir cows produce an average daily milk yield of 14 to 20 liters with high milk fat (4.5% to 5.0%) and high beta-casein A2 protein content. Gir cattle exhibit exceptional thermal tolerance and strong tick resistance.
+
+2. Sahiwal Cattle:
+Sahiwal is one of the heaviest zebu milch breeds originating from the Montgomery region. They are reddish-dun to pale red in color, with loose skin, a prominent dewlap, and a voluminous naval flap. Sahiwal cows average 12 to 18 liters of milk per day with 4.5% fat. They are renowned for docile temperament, drought resistance, and lower susceptibility to subclinical mastitis compared to exotic breeds.
+
+3. Murrah Buffalo:
+Murrah is the world's most renowned water buffalo dairy breed originating from Haryana and Punjab. Jet black in color, Murrah buffaloes have tightly curled spiral horns, short broad head, and a deep barrel body. Daily milk yield ranges from 12 to 22 liters with rich 7.0% to 8.5% milk fat. Murrah buffaloes have a longer gestation period (305 to 315 days) compared to cows (280 to 285 days).
+
+4. Holstein Friesian (HF) Crossbred:
+HF Crossbred cattle are developed by crossing indigenous zebu dams with Holstein Friesian exotic semen. They exhibit high peak lactation yields (20 to 35 liters per day) but have significantly higher susceptibility to heat stress, udder pendulousness, and acute clinical mastitis.
+
+[SECTION: BOVINE MASTITIS PATHOLOGY & CLINICAL CLASSIFICATION]
+Mastitis is an inflammation of the mammary gland parenchymal tissue, predominantly caused by bacterial pathogens including Staphylococcus aureus, Streptococcus uberis, and Escherichia coli. Mastitis is classified into two distinct forms:
+
+1. Subclinical Mastitis:
+In subclinical mastitis, there are NO visible swelling, heat, or redness in the udder, and the milk appears visually normal. However, pathogenic invasion causes cellular damage leading to electrolyte leakage, elevated sodium and chloride ions, increased electrical conductivity, and elevated Somatic Cell Count (SCC). Subclinical mastitis causes an insidious 10% to 25% reduction in milk production and costs Indian dairy farmers approximately Rs. 6,000 to Rs. 9,000 per cow per lactation.
+
+2. Clinical Mastitis:
+Clinical mastitis manifests with visible signs: hard, painful, swollen udder quarters, fever (>39.5°C), lethargy, and abnormal milk containing flakes, clots, wateriness, or blood. If untreated, it causes permanent quarter blindness (teat atrophy) or gangrenous necrosis.
+
+[SECTION: 4-QUARTER ELECTRICAL CONDUCTIVITY (EC) THRESHOLDS]
+Milking sensors measure Electrical Conductivity (EC) in milliSiemens per centimeter (mS/cm) across all four separate quarters (Left Front LF, Right Front RF, Left Hind LH, Right Hind RH):
+- Normal Healthy Quarter: EC is strictly between 4.20 and 5.50 mS/cm.
+- Subclinical Warning: EC between 5.50 and 7.00 mS/cm indicates early electrolyte leakage 48 to 72 hours before visible symptoms.
+- Acute Clinical Mastitis: EC exceeding 7.00 mS/cm indicates severe infection.
+- Quarter Disparity Variance Rule: A difference of greater than 0.50 mS/cm between the highest and lowest quarter in the same cow confirms infection in the higher quarter, even if absolute values are borderline.
+
+[SECTION: SOMATIC CELL COUNT (SCC) & MILK pH BENCHMARKS]
+1. Somatic Cell Count (SCC):
+- Healthy Udder: SCC is less than 200,000 cells/mL.
+- Suspected Subclinical Mastitis: SCC between 200,000 and 500,000 cells/mL.
+- Confirmed Clinical Infection: SCC greater than 500,000 cells/mL (frequently exceeding 1,000,000 cells/mL).
+- California Mastitis Test (CMT): A 4-cup paddle test mixing equal parts milk and alkyl aryl sulfonate reagent; gel formation indicates elevated SCC.
+
+2. Milk pH:
+- Normal Fresh Cow Milk: pH 6.50 to 6.75.
+- Mastitic Milk: pH rises to 6.85 to 7.40 (alkaline shift) due to sodium bicarbonate permeability from blood into the milk.
+
+[SECTION: ICAR-VALIDATED HERBAL PHYTOTHERAPY FORMULATION]
+The Indian Council of Agricultural Research (ICAR) and National Dairy Development Board (NDDB) validated herbal phytotherapy paste recipe:
+- Ingredients: Fresh Aloe vera whole leaves (250g), Turmeric powder / Curcuma longa (50g), Slaked Lime / Chuna / Calcium hydroxide (15g), and Mustard oil (50ml).
+- Preparation: Grind Aloe vera, turmeric, and lime into a smooth, bright yellow-golden paste.
+- Application Protocol: Wash udder and strip milk completely. Apply the paste thoroughly over the affected quarter and teat canal base 3 times daily for 5 consecutive days.
+- Clinical Efficacy: Yields an 85% to 92% cure rate for subclinical mastitis without causing antibiotic residues in milk or incurring veterinary antibiotic costs.
+
+[SECTION: EMERGENCY VETERINARY PHARMACOLOGY & SYSTEMIC DISEASES]
+1. Acute Mastitis Treatment:
+Isolate cow immediately. Administer Meloxicam (0.5 mg/kg body weight IV or IM) for anti-inflammatory pain relief. Administer broad-spectrum intramammary infusion (such as Ceftiofur sodium or Amoxicillin-Clavulanate) following culture sensitivity. Never use banned Diclofenac in cattle. All milk must be discarded during the antibiotic withdrawal period (usually 72 to 96 hours).
+
+2. Milk Fever (Hypocalcemia):
+Occurs within 24 to 72 hours post-calving due to rapid calcium drainage into colostrum. Symptoms include muscle trembling, sternal recumbency with head turned into the flank ("S-shape neck posture"), and subnormal body temperature (<38.0°C). Emergency treatment is slow intravenous infusion of 450ml Calcium Borogluconate (25% CBG) warmed to body temperature.
+
+3. Acute Bloat (Ruminal Tympany):
+Characterized by severe distension of the left paralumbar fossa, labored breathing, and grunting. Immediate field treatment: drench with 250ml to 500ml of vegetable cooking oil (mustard or peanut oil) with 20ml turpentine oil to break foam bubbles. In asphyxiation emergencies, puncture the left flank using a trochar and cannula.
+
+[SECTION: DAIRY REPRODUCTION & BREEDING SOP]
+1. Heat Detection:
+Estrus signs include standing to be mounted ("standing heat"), clear stringy mucous discharge from vulva, bellowing, frequent urination, and drop in milk yield.
+
+2. AM-PM Insemination Rule:
+- A cow showing standing heat in the morning (AM) must be artificially inseminated in the evening (PM) of the same day.
+- A cow showing standing heat in the evening (PM) must be inseminated the following morning (AM).
+- Optimum insemination window is 12 to 18 hours after onset of standing estrus.
+
+3. Gestation Periods:
+- Zebu & Crossbred Cows: 280 to 285 days (approximately 9 months and 9 days).
+- Water Buffaloes (Murrah): 305 to 315 days (approximately 10 months and 10 days).
+
+[SECTION: CALF REARING & COLOSTRUM PROTOCOL]
+- Colostrum Feeding: Newborn calves must receive first colostrum within 1 to 2 hours of birth, at the rate of 10% of their body weight (approximately 3 to 4 liters for a 35kg calf). Colostrum provides vital maternal immunoglobulins (IgG) through passive transfer before intestinal closure occurs at 24 hours.
+- Navel Cord Dipping: Disinfect umbilical cord stump immediately after birth by dipping in 7% tincture iodine to prevent navel ill and joint ill.
+
+[SECTION: SURABHI DAIRY FARM REGISTERED HERD TELEMETRY]
+Herd records for farmer Kundan Pal at Surabhi Dairy Farm, Karnal, Haryana:
+- Cow Kaveri (ID: COW-108, Tag: TAG-IND-808): HF Crossbred, 4.0 years old, 2nd parity, Day 40 in milk. Current status: ACUTE CLINICAL MASTITIS in Left Front (LF) quarter. EC LF is 8.12 mS/cm, SCC is 980,000 cells/mL, body temperature is 40.2°C (fever), daily milk yield dropped to 8.5L from baseline 20.0L (-57%). Action: Isolate cow, milk quarter last, administer Meloxicam, consult vet.
+- Cow Meera (ID: COW-104, Tag: TAG-IND-804): HF Crossbred, 3.5 years old, 2nd parity, Day 35 in milk. Current status: ACUTE CLINICAL MASTITIS in Left Front (LF) quarter. EC LF is 7.80 mS/cm, SCC is 780,000 cells/mL, body temperature is 40.1°C, daily milk yield is 9.0L from baseline 19.5L (-53%).
+- Cow Kamdhenu (ID: COW-102, Tag: TAG-IND-802): Sahiwal, 5.0 years old, 3rd parity, Day 45 in milk. Current status: SUBCLINICAL MASTITIS 48-hour early warning in Right Hind (RH) quarter. EC RH is 6.40 mS/cm (other 3 quarters are ~4.95 mS/cm; quarter disparity is 1.45 mS/cm), SCC is 290,000 cells/mL, milk yield dropped to 13.8L from baseline 16.0L (-13.8%). Action: Apply ICAR herbal paste 3x daily for 5 days.
+- Cow Gauri (ID: COW-107, Tag: TAG-IND-807): Murrah Buffalo, 5.5 years old, 3rd parity, Day 75 in milk. Current status: SUBCLINICAL MASTITIS in Left Front (LF) quarter. EC LF is 6.82 mS/cm, SCC is 380,000 cells/mL, daily milk yield is 12.0L from baseline 15.5L (-22.5%). Action: Apply ICAR herbal paste.
+- Cow Lakshmi (ID: COW-101, Tag: TAG-IND-801): Pure Gir, 4.5 years old, 2nd parity, Day 110 in milk. Current status: OPTIMAL HEALTH. All 4 quarters healthy (EC 4.70 to 4.90 mS/cm), SCC is 120,000 cells/mL, daily milk yield is 18.2L (baseline 18.5L), milk pH is 6.60. Action: Maintain standard teat dipping.
+- Cow Ganga (ID: COW-103, Tag: TAG-IND-803): Murrah Buffalo, 6.0 years old. Status: Healthy, daily yield 14.5L, SCC 140,000 cells/mL.
+- Cow Radha (ID: COW-105, Tag: TAG-IND-805): Tharparkar, 4.0 years old. Status: Healthy, daily yield 12.5L, SCC 160,000 cells/mL.
+- Cow Nandini (ID: COW-106, Tag: TAG-IND-806): Rathi, 3.0 years old. Status: Healthy, daily yield 11.2L, SCC 110,000 cells/mL.
+- Cow Yamuna (ID: COW-109, Tag: TAG-IND-809): Murrah Buffalo, 6.5 years old. Status: Healthy, daily yield 15.2L, SCC 135,000 cells/mL.
+- Cow Saraswati (ID: COW-110, Tag: TAG-IND-810): Gir, 3.8 years old. Status: Healthy, daily yield 17.5L, SCC 125,000 cells/mL.
