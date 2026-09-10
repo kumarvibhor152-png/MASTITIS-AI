@@ -188,9 +188,13 @@ def listen_to_microphone(timeout=5, phrase_time_limit=8):
     except sr.WaitTimeoutError:
         return {"text": "", "success": False, "error": "Listening timed out. No speech detected."}
     except sr.UnknownValueError:
-        return {"text": "", "success": False, "error": "Could not understand audio."}
+        return {"text": "", "success": False, "error": "Could not understand audio. Please speak clearly into your mic."}
     except sr.RequestError as e:
         return {"text": "", "success": False, "error": f"Speech recognition service error: {e}"}
+    except (AttributeError, ImportError):
+        return {"text": "", "success": False, "error": "PyAudio driver error. Please type your query in the input box below."}
+    except OSError as e:
+        return {"text": "", "success": False, "error": f"Audio input device error (no default mic found). Please check your PC microphone settings or type below."}
     except Exception as ex:
         return {"text": "", "success": False, "error": f"Microphone error: {ex}"}
 
