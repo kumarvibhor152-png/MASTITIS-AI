@@ -318,20 +318,18 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
             return
 
         if path == "/api/voice/status":
-            meta = getattr(voice_assistant, "GROUNDING_METADATA", {}) if voice_assistant else {}
+            has_groq = bool(voice_assistant.get_api_key("groq")) if voice_assistant else False
             has_gemini = bool(voice_assistant.get_api_key("gemini")) if voice_assistant else False
             has_openai = bool(voice_assistant.get_api_key("openai")) if voice_assistant else False
+            active_engine = "⚡ Groq AI (Llama 3.3 70B Versatile)" if has_groq else ("✨ Google Gemini 1.5 Flash" if has_gemini else "🧠 LactoGuard Trained Bovine Model (NLP Vector Space)")
             self._send_json({
-                "success": True,
-                "status": "online",
-                "model_name": meta.get("model_name", "XGBoost Mastitis Diagnostic Engine"),
-                "records_trained": meta.get("dataset_records_count", 2500),
-                "accuracy_pct": meta.get("accuracy_pct", 100.0),
+                "available": bool(voice_assistant),
                 "has_tts": getattr(voice_assistant, "HAS_PYTTSX3", False),
                 "has_mic": getattr(voice_assistant, "HAS_SR", False),
+                "has_groq_key": has_groq,
                 "has_gemini_key": has_gemini,
-                "external_ai_configured": has_gemini or has_openai,
-                "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)",
+                "external_ai_configured": has_groq or has_gemini or has_openai,
+                "active_engine": active_engine,
                 "farmer_name": "Kundan Pal",
                 "farm_name": "Surabhi Dairy Farm",
                 "total_cows": 8
@@ -339,13 +337,16 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
             return
 
         if path == "/api/voice/config":
+            has_groq = bool(voice_assistant.get_api_key("groq")) if voice_assistant else False
             has_gemini = bool(voice_assistant.get_api_key("gemini")) if voice_assistant else False
             has_openai = bool(voice_assistant.get_api_key("openai")) if voice_assistant else False
+            active_engine = "⚡ Groq AI (Llama 3.3 70B Versatile)" if has_groq else ("✨ Google Gemini 1.5 Flash" if has_gemini else "🧠 LactoGuard Trained Bovine Model (NLP Vector Space)")
             self._send_json({
                 "success": True,
+                "has_groq_key": has_groq,
                 "has_gemini_key": has_gemini,
                 "has_openai_key": has_openai,
-                "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)"
+                "active_engine": active_engine
             })
             return
 
@@ -411,19 +412,50 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
 
         # ─── AI Voice Assistant Routes ────────────────────────────────
         if path == "/api/voice/config":
+            groq_key = body.get("groq_api_key")
             gemini_key = body.get("gemini_api_key")
             openai_key = body.get("openai_api_key")
             if voice_assistant:
-                voice_assistant.set_api_key(gemini_key=gemini_key, openai_key=openai_key)
+                voice_assistant.set_api_key(groq_key=groq_key, gemini_key=gemini_key, openai_key=openai_key)
+                has_groq = bool(voice_assistant.get_api_key("groq"))
                 has_gemini = bool(voice_assistant.get_api_key("gemini"))
+                active_engine = "⚡ Groq AI (Llama 3.3 70B Versatile)" if has_groq else ("✨ Google Gemini 1.5 Flash" if has_gemini else "🧠 LactoGuard Trained Bovine Model (NLP Vector Space)")
                 self._send_json({
                     "success": True,
-                    "message": "AI API key configured successfully!",
+                    "message": "AI configuration updated successfully!",
+                    "has_groq_key": has_groq,
                     "has_gemini_key": has_gemini,
-                    "active_engine": "Google Gemini 1.5 Flash (Live Grounded)" if has_gemini else "LactoGuard Grounded Engine (Offline)"
+                    "active_engine": active_engine
                 })
             else:
                 self._send_json({"success": False, "error": "Voice assistant module not available"}, status=500)
+            return
+
+        if path == "/api/voice/test-groq":
+            test_key = str(body.get("groq_api_key", "")).strip() or (voice_assistant.get_api_key("groq") if voice_assistant else "")
+            if not test_key:
+                self._send_json({"success": False, "error": "No Groq API key provided. Please paste your key from console.groq.com."})
+                return
+            try:
+                # Direct test call with 5s timeout
+                headers = {
+                    "Authorization": f"Bearer {test_key}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "LactoGuard/2.0"
+                }
+                payload = {
+                    "model": "llama-3.1-8b-instant",
+                    "messages": [{"role": "user", "content": "ping"}],
+                    "max_tokens": 5
+                }
+                import requests
+                r = requests.post("https://api.groq.com/openai/v1/chat/completions", headers=headers, json=payload, timeout=6)
+                if r.status_code == 200:
+                    self._send_json({"success": True, "message": "Groq AI (Llama 3.3 / Llama 3.1) connected and verified!"})
+                else:
+                    self._send_json({"success": False, "error": f"Groq Error (HTTP {r.status_code}): {r.text[:100]}"})
+            except Exception as e:
+                self._send_json({"success": False, "error": str(e)})
             return
 
         if path == "/api/voice/chat":
@@ -433,9 +465,13 @@ class AppRequestHandler(SimpleHTTPRequestHandler):
                 return
             
             # Optional on-the-fly API key from client
+            custom_groq = body.get("groq_api_key", "").strip()
             custom_gemini = body.get("gemini_api_key", "").strip()
-            if custom_gemini and voice_assistant:
-                voice_assistant.set_api_key(gemini_key=custom_gemini)
+            if voice_assistant:
+                if custom_groq:
+                    voice_assistant.set_api_key(groq_key=custom_groq)
+                if custom_gemini:
+                    voice_assistant.set_api_key(gemini_key=custom_gemini)
 
             if voice_assistant:
                 res = voice_assistant.ask_voice_assistant(query)

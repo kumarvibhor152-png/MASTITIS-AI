@@ -23,14 +23,15 @@
     speechSynthesisActive: false,
     voiceListening: false,
     voiceProcessing: false,
-    hasGeminiKey: false,
+    hasGroqKey: Boolean(localStorage.getItem("lactoguard_groq_key")),
+    hasGeminiKey: Boolean(localStorage.getItem("dhenu_gemini_key")),
     showConfigModal: false,
     voiceMessages: [
       {
         sender: "ai",
-        text: "Namaste Kundan Pal ji! I am your LactoGuard AI Voice Assistant. You can ask me any question about your cows, treatments, veterinary medicines, or sensor readings, just like Gemini.",
+        text: "Namaste Kundan Pal ji! I am your LactoGuard AI Voice Assistant. Powered by Groq Cloud AI and our trained clinical bovine model, you can ask me ANY question about your cows, mastitis diagnostics, ICAR remedies, feed, or breeding!",
         source: "LactoGuard AI",
-        timestamp: "17:40"
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       }
     ]
   };
@@ -347,8 +348,8 @@
     return `
       <!-- Nmap Centered Callout Ribbon -->
       <div class="center pbbox">
-        <span style="color:var(--c-accent-dark); font-weight:700;">🎙️ LactoGuard AI Voice Assistant Active</span> —
-        Real-world conversational bovine health intelligence trained on 2,500 clinical dataset records.
+        <span style="color:var(--c-accent-dark); font-weight:700;">⚡ LactoGuard AI Voice Assistant Active</span> —
+        Grounded veterinary conversational intelligence powered by Groq Cloud AI (Llama 3.3 70B) & Trained Clinical NLP Model.
       </div>
 
       <!-- Hero Card: Voice Assistant Console -->
@@ -366,10 +367,10 @@
           <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <div class="voice-badge-online">
               <span class="dot"></span>
-              <span>${state.hasGeminiKey ? "✨ GEMINI 1.5 FLASH LIVE" : "AI ENGINE ONLINE"}</span>
+              <span>${state.hasGroqKey ? "⚡ GROQ LLAMA 3.3 70B LIVE" : (state.hasGeminiKey ? "✨ GEMINI 1.5 FLASH LIVE" : "🧠 TRAINED BOVINE AI ONLINE")}</span>
             </div>
             <button class="btn-voice-action" id="btnToggleAiConfig" style="font-size:0.75rem; padding:4px 10px; background:#f0f9ff; border:1px solid #bae6fd; color:#0369a1;">
-              ⚙️ ${state.hasGeminiKey ? "Gemini Key Connected" : "Connect Gemini API"}
+              ⚙️ ${state.hasGroqKey ? "Groq Key Connected" : "Connect Groq Free API"}
             </button>
           </div>
         </div>
@@ -380,18 +381,29 @@
             ? `
           <div style="background:#f8fafc; border:1.5px solid #bae6fd; border-radius:6px; padding:14px; margin-bottom:16px; animation:fadeIn 0.2s ease;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-              <strong style="color:#0369a1; font-size:0.92rem;">🤖 Configure Google Gemini API (Real-World Intelligence)</strong>
+              <strong style="color:#0369a1; font-size:0.92rem;">⚡ Configure Groq AI (Free Llama 3.3 70B Versatile / Llama 3.1 8B)</strong>
               <button id="btnCloseAiConfig" style="background:none; border:none; cursor:pointer; font-size:1.1rem; color:#64748b;">✖</button>
             </div>
             <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.4; margin-bottom:10px;">
-              Enter your Google Gemini API key below to query Gemini 1.5 Flash live with dataset prompt grounding.
-              Leave empty or click "Use Offline Engine" to use the built-in clinical veterinary semantic reasoning engine.
+              Groq provides blazing-fast, 100% free cloud inference. Paste your free Groq API key below (starts with <code>gsk_...</code>).
+              You can get an instant free key at <a href="https://console.groq.com/keys" target="_blank" style="color:#0284c7; text-decoration:underline; font-weight:600;">console.groq.com/keys</a>.
+              When no key is present, LactoGuard automatically runs on its local trained bovine model and live RAG engine.
             </p>
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <input type="password" id="inputGeminiKey" class="voice-input-field" placeholder="Paste Google Gemini API Key (e.g. AIzaSy...)" style="flex:1; min-width:240px; font-size:0.85rem;" value="${localStorage.getItem("dhenu_gemini_key") || ""}" />
-              <button class="btn-voice-send" id="btnSaveGeminiKey" style="font-size:0.82rem; padding:6px 14px;">Save Key</button>
-              <button class="btn-voice-action" id="btnClearGeminiKey" style="font-size:0.82rem;">Use Offline Engine</button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+              <input type="password" id="inputGroqKey" class="voice-input-field" placeholder="Paste Groq Free API Key (e.g. gsk_...)" style="flex:1; min-width:240px; font-size:0.85rem;" value="${localStorage.getItem("lactoguard_groq_key") || ""}" />
+              <button class="btn-voice-send" id="btnSaveGroqKey" style="font-size:0.82rem; padding:6px 14px;">Save Groq Key</button>
+              <button class="btn-voice-action" id="btnTestGroqKey" style="font-size:0.82rem; padding:6px 10px;">Test Key</button>
+              <button class="btn-voice-action" id="btnClearGroqKey" style="font-size:0.82rem;">Use Local Model</button>
             </div>
+            <div id="groqTestFeedback" style="font-size:0.8rem; display:none; padding:4px 8px; border-radius:4px; margin-bottom:8px;"></div>
+
+            <details style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">
+              <summary style="cursor:pointer; color:#0369a1;">Optional: Use Google Gemini Key as fallback</summary>
+              <div style="display:flex; gap:8px; margin-top:6px;">
+                <input type="password" id="inputGeminiKey" class="voice-input-field" placeholder="Paste Google Gemini API Key (AIzaSy...)" style="flex:1; font-size:0.8rem;" value="${localStorage.getItem("dhenu_gemini_key") || ""}" />
+                <button class="btn-voice-action" id="btnSaveGeminiKey" style="font-size:0.78rem;">Save Gemini</button>
+              </div>
+            </details>
           </div>
         `
             : ""
@@ -401,15 +413,15 @@
         <div class="voice-grounding-banner">
           <div class="voice-grounding-item">
             <span>🏷️</span>
-            <span><strong>Model:</strong> ${state.hasGeminiKey ? "Google Gemini 1.5 Flash (Live Grounded)" : "XGBoost Diagnostic & Semantic Engine"}</span>
+            <span><strong>Model:</strong> ${state.hasGroqKey ? "Groq Cloud AI (Llama 3.3 70B Versatile)" : (state.hasGeminiKey ? "Google Gemini 1.5 Flash" : "Trained Bovine NLP Model (29 Intent Clusters)")}</span>
           </div>
           <div class="voice-grounding-item">
             <span>📊</span>
-            <span><strong>Dataset:</strong> 2,500 Clinical Bovine Records</span>
+            <span><strong>Dataset:</strong> 2,500 Clinical Bovine Records + Live RAG</span>
           </div>
           <div class="voice-grounding-item">
             <span>🔊</span>
-            <span><strong>Voice Stack:</strong> pyttsx3 (TTS) + Web STT</span>
+            <span><strong>Voice Stack:</strong> pyttsx3 (TTS) + Web Speech STT</span>
           </div>
           <div class="voice-grounding-item">
             <span>📍</span>
@@ -462,31 +474,43 @@
 
         <!-- Preset Chips / Fast Diagnostic Queries -->
         <div class="voice-chips-container">
-          <div class="voice-chips-label">⚡ Fast Real-World Questions (Click to Ask AI)</div>
+          <div class="voice-chips-label">⚡ Real-World Clinical Questions (Click to Ask AI Instantly):</div>
           <div class="voice-chips">
             <button class="voice-chip" data-query="Can humans drink milk from a cow with mastitis?">
               🥛 Can humans drink mastitic milk?
             </button>
-            <button class="voice-chip" data-query="Can I give paracetamol or meloxicam for mastitis pain?">
-              💊 Pain medicine for swollen udder?
+            <button class="voice-chip" data-query="What is the ICAR herbal paste recipe for mastitis?">
+              🌿 ICAR Aloe-Turmeric-Lime Recipe
             </button>
-            <button class="voice-chip" data-query="What is the ICAR herbal paste recipe?">
-              🌿 ICAR Aloe Vera-Turmeric recipe
+            <button class="voice-chip" data-query="What is milk fever and how to treat with calcium borogluconate?">
+              🚨 Milk Fever Emergency Treatment
             </button>
-            <button class="voice-chip" data-query="What is dry cow therapy & how to prevent dry mastitis?">
-              🩺 What is dry cow therapy?
+            <button class="voice-chip" data-query="What is the best painkiller injection for cow udder swelling and Meloxicam dosage?">
+              💊 Meloxicam & Pain Relief Dosage
             </button>
-            <button class="voice-chip" data-query="My cow has EC 6.8 and SCC 450,000, what should I do?">
-              📊 Custom Diagnosis: EC 6.8 & SCC 450k
+            <button class="voice-chip" data-query="How to do the California Mastitis Test CMT paddle test?">
+              🧪 CMT Paddle Test Steps
             </button>
-            <button class="voice-chip" data-query="Why does milk turn watery and yellow in mastitis?">
-              🔬 Why does milk turn watery & salty?
+            <button class="voice-chip" data-query="How to make pit silage from green maize for cattle?">
+              🌾 Silage Making Step-by-Step
             </button>
-            <button class="voice-chip" data-query="How is Kaveri?">
-              🐄 Check Cow Kaveri (Cow #4)
+            <button class="voice-chip" data-query="What is the AM-PM rule for artificial insemination in cows?">
+              🐂 AM-PM Rule for Heat & Breeding
+            </button>
+            <button class="voice-chip" data-query="What is the gestation period of a cow vs buffalo?">
+              💡 Gestation: Cow vs Buffalo
+            </button>
+            <button class="voice-chip" data-query="How is paneer or cheese made from milk?">
+              🧀 Fresh Paneer & Ghee Making
+            </button>
+            <button class="voice-chip" data-query="How does artificial intelligence work in LactoGuard?">
+              🤖 How AI Predicts Mastitis
+            </button>
+            <button class="voice-chip" data-query="EC is 7.4 and SCC is 680000. What is the risk?">
+              📊 Custom Diagnosis: EC 7.4 & SCC 680k
             </button>
             <button class="voice-chip" data-query="How is my herd health today?">
-              🌾 How is my herd health today?
+              🐄 Surabhi Herd Overview (8 Cows)
             </button>
           </div>
         </div>
@@ -526,7 +550,7 @@
             type="text"
             class="voice-input-field"
             id="voiceInputField"
-            placeholder="Ask anything like Gemini (e.g. 'Can humans drink mastitic milk?', 'What is dry cow therapy?', or EC/SCC numbers)..."
+            placeholder="Ask anything (e.g. 'Can humans drink mastitic milk?', 'What is milk fever?', 'How to make silage?', or EC/SCC numbers)..."
             autocomplete="off"
           />
           <button class="btn-voice-send" id="voiceSendBtn">
@@ -574,8 +598,11 @@
     // Config Modal Listeners
     const toggleConfigBtn = document.getElementById("btnToggleAiConfig");
     const closeConfigBtn = document.getElementById("btnCloseAiConfig");
+    const saveGroqKeyBtn = document.getElementById("btnSaveGroqKey");
+    const testGroqKeyBtn = document.getElementById("btnTestGroqKey");
+    const clearGroqKeyBtn = document.getElementById("btnClearGroqKey");
     const saveGeminiKeyBtn = document.getElementById("btnSaveGeminiKey");
-    const clearGeminiKeyBtn = document.getElementById("btnClearGeminiKey");
+    const testFeedback = document.getElementById("groqTestFeedback");
 
     if (toggleConfigBtn) {
       toggleConfigBtn.onclick = () => {
@@ -587,6 +614,92 @@
     if (closeConfigBtn) {
       closeConfigBtn.onclick = () => {
         state.showConfigModal = false;
+        render();
+      };
+    }
+
+    if (saveGroqKeyBtn) {
+      saveGroqKeyBtn.onclick = async () => {
+        const keyInput = document.getElementById("inputGroqKey");
+        const val = keyInput ? keyInput.value.trim() : "";
+        if (val) {
+          localStorage.setItem("lactoguard_groq_key", val);
+          try {
+            await fetch("/api/voice/config", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ groq_api_key: val })
+            });
+            state.hasGroqKey = true;
+            state.showConfigModal = false;
+            alert("⚡ Groq API Key saved successfully! LactoGuard is now powered live by Groq AI (Llama 3.3 70B).");
+            render();
+          } catch (e) {
+            alert("Failed to save Groq key to server: " + e);
+          }
+        } else {
+          alert("Please enter a valid Groq API key (starts with gsk_...).");
+        }
+      };
+    }
+
+    if (testGroqKeyBtn) {
+      testGroqKeyBtn.onclick = async () => {
+        const keyInput = document.getElementById("inputGroqKey");
+        const val = keyInput ? keyInput.value.trim() : "";
+        if (!val) {
+          alert("Please enter a Groq API key to test.");
+          return;
+        }
+        if (testFeedback) {
+          testFeedback.style.display = "block";
+          testFeedback.style.background = "#eff6ff";
+          testFeedback.style.color = "#0369a1";
+          testFeedback.innerText = "⏳ Testing Groq cloud inference...";
+        }
+        try {
+          const res = await fetch("/api/voice/test-groq", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ groq_api_key: val })
+          });
+          const data = await res.json();
+          if (data.success) {
+            if (testFeedback) {
+              testFeedback.style.background = "#ecfdf5";
+              testFeedback.style.color = "#047857";
+              testFeedback.innerText = "✅ " + data.message;
+            }
+          } else {
+            if (testFeedback) {
+              testFeedback.style.background = "#fef2f2";
+              testFeedback.style.color = "#b91c1c";
+              testFeedback.innerText = "❌ " + (data.error || "Groq connection failed.");
+            }
+          }
+        } catch (e) {
+          if (testFeedback) {
+            testFeedback.style.background = "#fef2f2";
+            testFeedback.style.color = "#b91c1c";
+            testFeedback.innerText = "❌ Network error connecting to backend.";
+          }
+        }
+      };
+    }
+
+    if (clearGroqKeyBtn) {
+      clearGroqKeyBtn.onclick = async () => {
+        localStorage.removeItem("lactoguard_groq_key");
+        try {
+          await fetch("/api/voice/config", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ groq_api_key: "" })
+          });
+        } catch (e) {}
+        state.hasGroqKey = false;
+        state.showConfigModal = false;
+        alert("Switched to built-in LactoGuard Trained Bovine Model & Live RAG Engine.");
         render();
       };
     }
@@ -604,30 +717,9 @@
               body: JSON.stringify({ gemini_api_key: val })
             });
             state.hasGeminiKey = true;
-            state.showConfigModal = false;
-            alert("Google Gemini API Key saved! LactoGuard Voice Assistant is now powered live by Gemini 1.5 Flash.");
-            render();
-          } catch (e) {
-            alert("Failed to save key to server: " + e);
-          }
+            alert("Google Gemini Key saved as secondary fallback!");
+          } catch (e) {}
         }
-      };
-    }
-
-    if (clearGeminiKeyBtn) {
-      clearGeminiKeyBtn.onclick = async () => {
-        localStorage.removeItem("dhenu_gemini_key");
-        try {
-          await fetch("/api/voice/config", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ gemini_api_key: "" })
-          });
-        } catch (e) {}
-        state.hasGeminiKey = false;
-        state.showConfigModal = false;
-        alert("Switched to built-in LactoGuard Veterinary Semantic Reasoning Engine.");
-        render();
       };
     }
 
@@ -737,6 +829,7 @@
       render();
 
       try {
+        const savedGroqKey = localStorage.getItem("lactoguard_groq_key") || "";
         const savedGeminiKey = localStorage.getItem("dhenu_gemini_key") || "";
         const res = await fetch("/api/voice/chat", {
           method: "POST",
@@ -744,6 +837,7 @@
           body: JSON.stringify({
             query: query,
             speak: true,
+            groq_api_key: savedGroqKey,
             gemini_api_key: savedGeminiKey
           })
         });

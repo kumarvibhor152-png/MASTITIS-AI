@@ -1,0 +1,635 @@
+#!/usr/bin/env python3
+"""
+data/generate_qa_training_data.py
+Generates a comprehensive clinical veterinary, dairy science, herd management,
+and real-world Q&A training corpus for LactoGuard.
+Contains extensive clinical domain clusters and natural language query variations.
+"""
+
+import os
+import json
+
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+OUTPUT_JSON = os.path.join(BASE_DIR, "data", "bovine_qa_dataset.json")
+
+DATASET = [
+    # ─── 1. MASTITIS PATHOLOGY & CLINICAL PRESENTATION ───
+    {
+        "id": "mastitis_abnormal_milk",
+        "category": "Mastitis Pathology",
+        "questions": [
+            "Why is cow milk watery and salty?",
+            "My cow gives yellow milk with flakes and clots",
+            "What causes blood in milk?",
+            "Milk contains curdled clumps and bad smell",
+            "Why is milk thin and transparent from one quarter?",
+            "What are the physical symptoms of clinical mastitis in milk?",
+            "Clots in milk during stripping",
+            "Cow milk has turned reddish pink",
+            "Watery milk treatment",
+            "curd like milk coming from teat"
+        ],
+        "answer": (
+            "Abnormal milk (watery, yellowish, or containing clots and flakes) is the cardinal symptom of clinical mastitis. "
+            "Bacterial cytotoxins damage the secretory epithelial cells and rupture tight junctions in the udder, allowing blood serum, white blood cells, and sodium/chloride ions to pour into the alveolar lumen, making the milk watery, alkaline, and salty. "
+            "If the milk is reddish or contains blood clots, it indicates capillary hemorrhage from acute inflammation or physical trauma. "
+            "Immediate Action: 1. Isolate the cow and milk the infected quarter last into a discard bucket. "
+            "2. Strip the quarter completely 3 to 4 times a day. "
+            "3. Apply ICAR Herbal Aloe Vera-Turmeric-Lime paste 3 times daily. "
+            "4. If systemic fever or severe blood is present, administer intramuscular Meloxicam (0.5 mg/kg) and seek veterinary antibiotic infusion."
+        )
+    },
+    {
+        "id": "mastitis_milk_safety",
+        "category": "Food Safety & Public Health",
+        "questions": [
+            "Can humans drink milk from a cow with mastitis?",
+            "Is it safe to drink mastitic milk after boiling?",
+            "Can I make curd or paneer from mastitis milk?",
+            "What happens if someone drinks milk from an infected udder?",
+            "Does boiling kill mastitis toxins in milk?",
+            "Can we feed mastitic milk to calves?",
+            "Human consumption of mastitis milk"
+        ],
+        "answer": (
+            "No, milk from a mastitic cow must NEVER be consumed by humans, even after thorough boiling. "
+            "Mastitic milk harbors dangerous zoonotic bacteria including Staphylococcus aureus, Escherichia coli, and Streptococcus uberis. "
+            "Staphylococcus produces heat-stable enterotoxins (Enterotoxin A and B) that resist boiling temperatures of 100°C for over 30 minutes, causing severe food poisoning, nausea, vomiting, and diarrhea. "
+            "Furthermore, if the cow has received intramammary or systemic antibiotics, the milk contains antibiotic residues that trigger allergic reactions and accelerate antimicrobial resistance (AMR) in humans. "
+            "Calves should also not be fed infected milk as it causes bacterial enteritis and colonizes their mouth. Discard all milk safely."
+        )
+    },
+    {
+        "id": "mastitis_subclinical_definition",
+        "category": "Diagnostics",
+        "questions": [
+            "What is subclinical mastitis?",
+            "How to detect mastitis when there is no swelling or clots?",
+            "Difference between clinical and subclinical mastitis",
+            "Why is my cow giving less milk without any sickness?",
+            "Invisible mastitis detection",
+            "How does subclinical mastitis cause financial loss?"
+        ],
+        "answer": (
+            "Subclinical mastitis is an invisible, hidden infection of the udder where the milk looks completely normal to the naked eye and the udder shows no visible swelling, heat, or pain. "
+            "However, pathogenic bacteria are actively destroying milk-secreting tissue, causing a 10% to 25% drop in daily milk yield and an elevation in Somatic Cell Count (200,000 to 500,000+ cells/mL) and Electrical Conductivity (5.5 to 7.0 mS/cm). "
+            "For every 1 clinical case, there are typically 15 to 40 subclinical cases in a herd, inflicting an invisible loss of Rs. 8,000 per cow per lactation. "
+            "It can only be detected using sensor tools like LactoGuard's 4-quarter EC sensors or the California Mastitis Test (CMT)."
+        )
+    },
+    {
+        "id": "mastitis_cmt_paddle_test",
+        "category": "Diagnostics",
+        "questions": [
+            "How to do the California Mastitis Test (CMT)?",
+            "What is CMT paddle test?",
+            "How does CMT reagent work?",
+            "Procedure for CMT milk testing",
+            "Interpreting CMT gel formation",
+            "Paddle test for subclinical mastitis",
+            "How to use CMT reagent with paddle"
+        ],
+        "answer": (
+            "The California Mastitis Test (CMT) is a rapid 60-second cow-side diagnostic test: "
+            "1. Strip the first 2 streams of foremilk, then squirt approximately 2 ml of milk from each of the 4 quarters into the 4 corresponding wells of the CMT paddle. "
+            "2. Tilt the paddle to a 45-degree angle so excess milk drains out, leaving exactly 2 ml in each cup. "
+            "3. Add an equal volume (2 ml) of CMT reagent (sodium lauryl sulfate with bromocresol purple indicator). "
+            "4. Swirl the paddle horizontally in gentle circles for 15 to 20 seconds. "
+            "Interpretation: "
+            "- Negative: Mixture stays fluid and purple (SCC < 200,000, Healthy). "
+            "- Trace/Weak Positive: Slight thickening that disappears (SCC 200,000 - 400,000). "
+            "- Strong Positive: Mixture turns into a thick, sticky gelatinous slime or mass that rolls towards the center (SCC > 800,000 to millions, Confirmed Mastitis)."
+        )
+    },
+
+    # ─── 2. PHARMACOLOGY & ICAR HERBAL REMEDIES ───
+    {
+        "id": "icar_herbal_paste_recipe",
+        "category": "Phytotherapy & Herbal Medicine",
+        "questions": [
+            "What is the ICAR herbal paste recipe for mastitis?",
+            "How to prepare Aloe Vera Haldi Chuna paste?",
+            "Home remedy for cow udder swelling and mastitis",
+            "Ayurvedic treatment for thanela rog in cows",
+            "Ingredients for ICAR mastitis paste",
+            "How many days to apply turmeric aloe vera paste?",
+            "Herbal cure for subclinical mastitis",
+            "Gwarpatha haldi chuna lepa"
+        ],
+        "answer": (
+            "The ICAR (National Dairy Development Board / ICAR-NDRI) validated herbal phytotherapy paste cures over 85% of subclinical mastitis cases and reduces inflammation without leaving antibiotic residues: "
+            "Recipe for One Day (3 Applications): "
+            "1. Fresh Aloe Vera leaves (Gwarpatha): 250 grams (remove lateral thorns, keep rind and pulp). "
+            "2. Pure Turmeric powder (Haldi): 50 grams. "
+            "3. Edible Lime paste (Chuna / Calcium Hydroxide): 15 grams. "
+            "Preparation: Grind the Aloe Vera, Turmeric, and Chuna together into a fine, smooth reddish-golden paste. Add 100 to 150 ml of clean water to make a creamy slurry. "
+            "Application Protocol: Completely milk out all quarters. Wash the udder with lukewarm water and dry with a clean cotton towel. Apply the paste liberally over the entire infected quarter and teat base 3 times daily for 5 consecutive days. Results show 70% reduction in electrical conductivity within 48 hours."
+        )
+    },
+    {
+        "id": "veterinary_nsaids_pain_relief",
+        "category": "Pharmacology",
+        "questions": [
+            "Can I give Paracetamol to a cow for fever and swelling?",
+            "What is the best painkiller injection for cattle udder inflammation?",
+            "Meloxicam dosage for dairy cow",
+            "Flunixin Meglumine in acute mastitis",
+            "How to reduce udder heat, hardness and pain?",
+            "NSAIDs for bovine mastitis",
+            "Can we give diclofenac to cows?"
+        ],
+        "answer": (
+            "For painful udder swelling, hardness, and fever: "
+            "1. Meloxicam (0.5 mg per kg body weight) administered intramuscularly or subcutaneously is the drug of choice. For a 400 kg cow, the dose is 15-20 ml of Meloxicam (20 mg/ml) once daily. It has superior anti-inflammatory penetration into mammary parenchyma and provides 24-hour analgesia. "
+            "2. In severe toxemic mastitis with endotoxic shock (E. coli), Flunixin Meglumine (2.2 mg/kg IV) provides rapid anti-endotoxic relief. "
+            "3. Paracetamol can lower high fever (39.5°C+), but lacks strong anti-inflammatory effect in mammary tissue. "
+            "Warning: Never administer human Diclofenac to cattle—it is legally banned in India due to lethal toxicity to vultures and nephrotoxicity in cattle."
+        )
+    },
+    {
+        "id": "antibiotic_therapy_withdrawal",
+        "category": "Pharmacology",
+        "questions": [
+            "Which antibiotics are used for mastitis in cows?",
+            "What is milk withdrawal period for antibiotics?",
+            "Intramammary antibiotic infusion tubes",
+            "Ceftiofur and Amoxicillin in dairy cattle",
+            "How long after antibiotic can we sell milk?",
+            "Antibiotic resistance in dairy herds",
+            "Best antibiotic tube for mastitis"
+        ],
+        "answer": (
+            "Antibiotic therapy should be prescribed by a registered veterinarian based on milk culture: "
+            "1. Intramammary Infusions: Broad-spectrum tubes containing Cloxacillin, Cefoperazone, Amoxicillin-Clavulanate, or Ceftiofur sodium infused into the stripped teat canal after antiseptic teat wiping. "
+            "2. Systemic Injectables: For acute mastitis with fever, Ceftiofur sodium (1-2 mg/kg IM), Enrofloxacin (5 mg/kg), or Amoxicillin-Sulbactam are commonly used. "
+            "Milk Withdrawal Period: Crucial! Most intramammary antibiotics require a mandatory 72 to 96-hour (3 to 4 days) milk discard period after the final dose. Selling or consuming milk during this window violates FSSAI food safety regulations due to carcinogenic and allergic risks."
+        )
+    },
+    {
+        "id": "dry_cow_therapy_sealant",
+        "category": "Herd Management & Prevention",
+        "questions": [
+            "What is Dry Cow Therapy (DCT)?",
+            "How to dry off a dairy cow safely?",
+            "What is teat sealant and how does it work?",
+            "Why do cows get mastitis during the dry period?",
+            "Steps for drying off 60 days before calving",
+            "Internal bismuth teat sealant"
+        ],
+        "answer": (
+            "Dry Cow Therapy (DCT) is the single most effective protocol for eliminating subclinical mastitis and preventing new infections during the 60-day dry period before calving: "
+            "Why It Matters: During the first 3 weeks of drying off and 2 weeks prior to calving, the teat canal keratin plug is forming or degrading, leaving the quarter vulnerable to environmental bacteria. "
+            "Step-by-Step Protocol: "
+            "1. At final milking, strip all 4 quarters completely dry. "
+            "2. Thoroughly scrub teat ends with 70% isopropyl alcohol wipes. "
+            "3. Infuse a long-acting dry cow antibiotic tube (e.g. Benzathine Cloxacillin) into each quarter to cure latent subclinical infections. "
+            "4. Follow immediately with an internal teat sealant (bismuth subnitrate paste) infused at the base of the teat without massaging into the udder. This creates an impenetrable physical cork that blocks bacteria until calving."
+        )
+    },
+
+    # ─── 3. METABOLIC & SYSTEMIC BOVINE DISEASES ───
+    {
+        "id": "milk_fever_hypocalcemia",
+        "category": "Metabolic Diseases",
+        "questions": [
+            "What is milk fever in dairy cows?",
+            "Cow cannot stand up after calving",
+            "Symptoms of hypocalcemia in cattle",
+            "How to treat milk fever?",
+            "Calcium Borogluconate injection dose",
+            "Why do high yielding cows collapse after giving birth?",
+            "S-shaped neck curvature in downer cow",
+            "Downer cow syndrome treatment"
+        ],
+        "answer": (
+            "Milk Fever (Postparturient Hypocalcemia) is an acute metabolic crisis occurring within 24 to 72 hours after calving, caused by a sudden, massive drain of calcium from the bloodstream into colostrum: "
+            "Clinical Signs: "
+            "- Stage 1: Restlessness, muscle tremors, head tossing. "
+            "- Stage 2: Sternal recumbency (cow sits on chest, unable to rise), cold ears and muzzle, subnormal rectal temperature (36-37.5°C), characteristic 'S-shaped' kink in the neck with head tucked into the flank. "
+            "- Stage 3: Lateral recumbency, bloat, coma, and death if untreated. "
+            "Treatment: Emergency intravenous infusion of 450 ml Calcium Borogluconate (25% to 40% with magnesium and phosphorus, e.g. Mifex / Calborol). Administer slowly by jugular vein over 15 to 20 minutes while monitoring heart rate. The cow typically belches, urinates, and stands within 30 minutes. "
+            "Prevention: Feed low-calcium diets during late pregnancy to stimulate parathyroid hormone, and administer oral calcium gels on calving day."
+        )
+    },
+    {
+        "id": "bloat_tympany_ruminal_acidosis",
+        "category": "Digestive Diseases",
+        "questions": [
+            "My cow is bloated and stomach is swollen on left side",
+            "Treatment for frothy bloat in cattle",
+            "Emergency treatment for gas bloat in cows",
+            "What is ruminal tympany?",
+            "What to give when cow eats too much grain or wheat flour?",
+            "Trocar and cannula use for cattle bloat",
+            "Sweet oil or mustard oil for bloat",
+            "Afra rog in cows treatment"
+        ],
+        "answer": (
+            "Bloat (Ruminal Tympany, Afra) is a life-threatening accumulation of gas or stable foam in the rumen, causing massive distension of the left paralumbar fossa, labored breathing, and suffocation: "
+            "Types & Remedies: "
+            "1. Frothy Bloat (after grazing lush green legumes like Berseem, Lucerne, or clover): Administer 500 ml of vegetable oil (Mustard oil, Groundnut oil) or an anti-frothing surfactant (Simethicone / Poloxalene, e.g., Bloatosil 100 ml) orally to break the surface tension of foam bubbles. "
+            "2. Free-Gas Bloat (choke or grain overload): Pass a stomach tube down the esophagus to vent trapped gas. In severe suffocation emergencies, a veterinarian punctures the left flank using a Trocar and Cannula. "
+            "3. Grain Overload (Ruminal Acidosis): If the cow gorged on wheat, rice, or flour, give 250-500 grams of Sodium Bicarbonate (baking soda) in water orally to neutralize rumen acidity."
+        )
+    },
+    {
+        "id": "ketosis_acetonemia",
+        "category": "Metabolic Diseases",
+        "questions": [
+            "What is ketosis in dairy cattle?",
+            "Cow has sweet fruity breath and refuses concentrate feed",
+            "How to treat ketosis in early lactation?",
+            "Propylene glycol dose for cow",
+            "Negative energy balance in high yielding cows",
+            "Why is cow losing weight rapidly after calving?"
+        ],
+        "answer": (
+            "Bovine Ketosis (Acetonemia) occurs in high-producing cows 2 to 6 weeks after calving when energy demands for milk production exceed dietary intake, forcing rapid mobilization of body fat: "
+            "Symptoms: Rapid weight loss, lethargy, selective appetite (cow eats dry roughage but refuses grain/concentrates), drop in milk production, and a distinct sweet, fruity acetone smell on breath and milk. "
+            "Treatment: "
+            "1. Oral drench of Propylene Glycol (250 to 300 ml twice daily for 3-5 days) to serve as a glucose precursor. "
+            "2. Intravenous 500 ml of 25% or 50% Dextrose infusion for immediate blood sugar elevation. "
+            "3. B-complex vitamins (especially Niacin and Vitamin B12) to support liver function. "
+            "Prevention: Avoid fat cows at calving; provide bypass fat (100-200g/day) and energy-dense rations."
+        )
+    },
+    {
+        "id": "lumpy_skin_disease_lsd",
+        "category": "Infectious Diseases",
+        "questions": [
+            "What is Lumpy Skin Disease (LSD) in cattle?",
+            "Cow has round nodules and lumps all over body",
+            "How to treat and prevent Lumpy Skin Disease?",
+            "Vaccination for Lumpy Skin Disease",
+            "Is Lumpy Skin Disease contagious to humans?",
+            "Leg swelling and nodular skin eruptions in cow",
+            "Gaay ke sharir par gaanthe pad gayi hai"
+        ],
+        "answer": (
+            "Lumpy Skin Disease (LSD) is a poxviral infection of cattle caused by the Capripoxvirus, transmitted primarily by biting insects (mosquitoes, stable flies, ticks): "
+            "Symptoms: High fever (40-41.5°C), enlarged superficial lymph nodes, sharp drop in milk yield, and characteristic firm, raised circumscribed skin nodules (2-5 cm) covering head, neck, udder, and limbs. Nodules may ulcerate and form deep scabs (sitfasts). "
+            "Treatment: There is no direct antiviral cure; supportive therapy is vital: "
+            "1. NSAIDs (Meloxicam 0.5 mg/kg) to control fever and pain. "
+            "2. Broad-spectrum antibiotics (Ceftiofur, Enrofloxacin) to prevent secondary bacterial pneumonia and wound sepsis. "
+            "3. Antihistamines and topical antiseptic neem-turmeric sprays on burst lesions. "
+            "Prevention: Goat Pox vaccine (or homologous Lumpi-ProVacInd vaccine) administered annually provides high protective immunity. LSD is non-zoonotic (does not infect humans)."
+        )
+    },
+    {
+        "id": "foot_and_mouth_disease_fmd",
+        "category": "Infectious Diseases",
+        "questions": [
+            "What is Foot and Mouth Disease (FMD / Khurpak-Munhpak)?",
+            "Cow is drooling saliva and limping with foot sores",
+            "Blisters in mouth and tongue of cattle",
+            "FMD vaccination schedule in India",
+            "First aid for FMD blisters and ulcers",
+            "Khurpaka munhpaka bimari ka ilaj"
+        ],
+        "answer": (
+            "Foot and Mouth Disease (FMD, Khurpak-Munhpak) is a highly contagious aphthovirus infection affecting cloven-hoofed animals: "
+            "Clinical Signs: High fever, ropy salivation (stringy drool hanging from mouth), painful vesicles and blisters on tongue, gums, dental pad, and interdigital clefts of hooves causing severe lameness. Infected cows stop eating and suffer permanent 50%+ lactation loss. "
+            "Care & First Aid: "
+            "1. Mouth Wash: Wash mouth lesions with 1% Potassium Permanganate (red medicine / Lal Dawai) solution or 2% sodium bicarbonate 3 times daily, followed by glycerin or honey application. "
+            "2. Foot Care: Stand the animal in a 4% Sodium Carbonate or 1:1000 potassium permanganate foot bath. Apply topical fly repellent/neem oil to prevent maggot infestation. "
+            "Prevention: Mandatory vaccination under the National Animal Disease Control Programme (NADCP) every 6 months."
+        )
+    },
+
+    # ─── 4. REPRODUCTION, HEAT DETECTION & BREEDING ───
+    {
+        "id": "heat_detection_signs",
+        "category": "Reproduction & Breeding",
+        "questions": [
+            "What are the signs of heat (estrus) in a cow?",
+            "How to tell if cow is ready for artificial insemination?",
+            "Clear stringy mucus discharge from vulva",
+            "Cow bellowing and mounting other cows",
+            "Silent heat in Murrah buffaloes",
+            "Estrous cycle length in cattle",
+            "Cow garmi me aayi hai kaise pata kare"
+        ],
+        "answer": (
+            "The estrous cycle in dairy cattle and buffaloes averages 21 days (range 18-24 days). The heat period lasts 12 to 18 hours in cows and 8 to 12 hours in buffaloes: "
+            "Primary Sign: Standing to be mounted by other animals (standing heat). "
+            "Secondary Signs: "
+            "1. Vulva is swollen, pink, and discharges clear, elastic, stringy glass-like mucus (cervical discharge) hanging down to the hocks. "
+            "2. Frequent bellowing, restlessness, drop in milk yield, reduced feed intake. "
+            "3. Frequent urination and licking other cows. "
+            "Special Note for Murrah Buffaloes: Buffaloes frequently exhibit 'Silent Heat' (especially in summer), showing no bellowing. Check vulva discharge between 2 AM to 5 AM or use a teaser bull."
+        )
+    },
+    {
+        "id": "am_pm_insemination_rule",
+        "category": "Reproduction & Breeding",
+        "questions": [
+            "What is the AM-PM rule for artificial insemination (AI)?",
+            "When should I call the doctor for AI after seeing heat?",
+            "Best time for artificial insemination in dairy cattle",
+            "Ovulation timing in dairy cows",
+            "Kitne ghante baad AI karwani chahiye"
+        ],
+        "answer": (
+            "The AM-PM Rule ensures maximum conception rate by timing insemination right before ovulation (which occurs 10-14 hours after the end of standing heat): "
+            "- If a cow first shows standing heat in the MORNING (AM): Inseminate her the same day in the EVENING (PM). "
+            "- If a cow first shows standing heat in the EVENING or NIGHT (PM): Inseminate her the next day in the MORNING (AM). "
+            "Ensure the semen straw is thawed in warm water at 35-37°C for exactly 30 seconds before loading into the AI gun. Keep the cow calm and in shade after insemination."
+        )
+    },
+    {
+        "id": "gestation_period_cattle_buffalo",
+        "category": "Reproduction & Breeding",
+        "questions": [
+            "What is the gestation period of a cow?",
+            "What is the pregnancy duration of a buffalo?",
+            "How many days does a pregnant cow carry her calf?",
+            "Difference in gestation period between cow and buffalo",
+            "When will my cow deliver after insemination date?",
+            "Cow kitne din me bachha deti hai"
+        ],
+        "answer": (
+            "Gestation (Pregnancy) Durations: "
+            "1. Dairy Cow (Indigenous Gir, Sahiwal, and HF/Jersey Crosses): 280 to 285 days (approximately 9 months and 9 days). "
+            "2. Dairy Buffalo (Murrah, Nili-Ravi, Mehsana): 305 to 315 days (average 310 days, approximately 10 months and 10 days). "
+            "Buffaloes carry calves roughly 25 to 30 days longer than cows. "
+            "Pregnancy Diagnosis (PD): Can be confirmed by a veterinarian through rectal palpation at 60-90 days post-AI, or via blood/milk pregnancy-associated glycoproteins (PAGs) at 28 days."
+        )
+    },
+    {
+        "id": "newborn_calf_colostrum_management",
+        "category": "Calf Rearing",
+        "questions": [
+            "How to care for a newborn calf?",
+            "When should I feed colostrum to calf?",
+            "Colostrum feeding rule 10 percent body weight",
+            "Naval cord dipping with 7 percent tincture iodine",
+            "Why is first milk important for newborn calf?",
+            "Calf diarrhea prevention",
+            "Khees pilana newborn bachhde ko"
+        ],
+        "answer": (
+            "The first 2 hours of a newborn calf's life dictate its lifelong health and productivity: "
+            "The Golden 3 Steps: "
+            "1. Clear Airways & Dry: Immediately remove mucous from mouth and nostrils. Rub the calf dry with clean straw or cloth to stimulate breathing. "
+            "2. Naval Cord Antisepsis: Tie the naval cord with sterile thread 2 inches from the abdomen, cut below with a sterile blade, and dip the stump in 7% Tincture of Iodine. This prevents 'navel ill' and joint infections. "
+            "3. Colostrum Feeding: Feed the calf high-quality colostrum (first milk / Khees) within 1 to 2 hours of birth at 10% of its body weight (e.g., 2.5 to 3.5 liters for a 30 kg calf). "
+            "Calf intestinal walls absorb maternal immunoglobulins (IgG antibodies) efficiently only during the first 6 hours; absorption drops to zero by 24 hours."
+        )
+    },
+
+    # ─── 5. NUTRITION, FEEDS & SILAGE MAKING ───
+    {
+        "id": "silage_making_step_by_step",
+        "category": "Dairy Nutrition",
+        "questions": [
+            "How to make pit silage from green maize?",
+            "Step by step guide for silage making",
+            "What moisture content is needed for silage?",
+            "Molasses and salt addition in silage pit",
+            "How long does silage take to ferment?",
+            "Preserving green fodder for dairy cattle",
+            "Achar ghaas kaise banayein"
+        ],
+        "answer": (
+            "Silage is green fodder preserved through controlled anaerobic lactic acid fermentation: "
+            "Step-by-Step Procedure: "
+            "1. Crop Selection: Green Maize (Corn) at the milk-to-dough stage (grains show 50% milk line) is best. Pearl millet (Bajra) or Sorghum can also be used. "
+            "2. Moisture Level: Optimal moisture is 65% to 70% (dry matter 30-35%). Test by squeezing chopped fodder: it should form a ball without dripping water. "
+            "3. Chopping: Chop fodder into 1.5 to 2.5 cm (0.5 - 1 inch) pieces using a chaff cutter. "
+            "4. Additives (Optional): Mix 1-2% jaggery/molasses and 0.5% urea or salt dissolved in water if fermenting grasses with low sugars. "
+            "5. Compaction: Pack chopped maize into a concrete pit or trench in 1-foot layers, trampling thoroughly (using tractor tires or foot stamping) to squeeze out all oxygen. "
+            "6. Airtight Sealing: Cover with heavy UV-resistant plastic sheet, weigh down with soil and tires. Fermentation completes in 45 days. Good silage smells pleasant and fruity with a pH of 3.8 to 4.2."
+        )
+    },
+    {
+        "id": "water_requirement_dairy_cattle",
+        "category": "Dairy Nutrition",
+        "questions": [
+            "How much water does a milking cow need per day?",
+            "Daily drinking water requirement for buffalo",
+            "Water requirement for milk production",
+            "Why do cows produce less milk in summer?",
+            "Clean water access for dairy herd"
+        ],
+        "answer": (
+            "Water is the most critical and cheapest nutrient in dairy farming. Milk consists of approximately 87% water. "
+            "Daily Requirements: "
+            "- A non-lactating adult cow needs 40 to 60 liters of clean drinking water daily. "
+            "- A high-yielding lactating cow requires 80 to 120+ liters per day (Rule of thumb: 4 to 5 liters of water for every 1 liter of milk produced). "
+            "- Murrah buffaloes in hot summer require up to 130-150 liters for drinking plus wallowing. "
+            "Restricting water intake by even 20% causes an immediate 15% to 25% collapse in milk yield. Always ensure fresh, ad libitum, shaded drinking water available 24 hours a day."
+        )
+    },
+    {
+        "id": "mineral_mixture_feed_formulation",
+        "category": "Dairy Nutrition",
+        "questions": [
+            "Why is mineral mixture important for dairy cows?",
+            "How much mineral mixture should I feed daily?",
+            "Selenium and Vitamin E for udder immunity and somatic cell count",
+            "Chelated mineral mixture benefits",
+            "Symptoms of mineral deficiency in cattle",
+            "Dhatoo mishran ki matra"
+        ],
+        "answer": (
+            "Feeding 50 to 100 grams of area-specific Chelated Mineral Mixture daily is essential for every adult milch animal: "
+            "Key Nutrients for Udder Health & Immunity: "
+            "1. Selenium & Vitamin E: Powerful biological antioxidants that enhance neutrophil bactericidal phagocytosis, reducing Somatic Cell Count (SCC) by over 30% and lowering mastitis incidence. "
+            "2. Zinc & Copper: Essential for keratin formation inside the teat canal, maintaining the physical waxy seal that blocks bacterial invasion. "
+            "3. Calcium & Phosphorus (2:1 ratio): Prevents milk fever, rickets, and pica (cows chewing soil, wood, or plastic). "
+            "Feed daily mixed with concentrated mash or green fodder to improve conception rates and lactation persistence."
+        )
+    },
+
+    # ─── 6. INDIAN BREEDS & SURABHI DAIRY FARM CONTEXT ───
+    {
+        "id": "indian_cow_breeds_comparison",
+        "category": "Breeds & Genetics",
+        "questions": [
+            "What is the difference between Gir and Sahiwal cows?",
+            "Best indigenous dairy cattle breeds in India",
+            "Milk yield and fat percentage of Sahiwal cow",
+            "Characteristics of Gir cow",
+            "A2 milk Indian cattle breeds",
+            "HF cross vs desi cow comparison"
+        ],
+        "answer": (
+            "Comparison of Premier Indian Indigenous (A2) Dairy Breeds: "
+            "1. Sahiwal (Origin: Punjab/Haryana): The premier milch zebu breed. High heat tolerance, reddish-brown coat, loose skin, docile temperament. Average lactation yield: 2,500 to 3,500 liters with 4.5% to 5.2% fat. Excellent tick resistance. "
+            "2. Gir (Origin: Saurashtra, Gujarat): Iconic half-moon shaped horns, convex forehead, and long pendulous curled ears. Average lactation yield: 2,200 to 3,200 liters with 4.5% to 5.0% fat. Highly resistant to tropical diseases and mastitis. "
+            "3. Murrah Buffalo (Haryana): The 'Black Gold' of India. Jet black with tightly curled spiral horns. Yields 2,000 to 3,000 liters per lactation with high fat (7.0% to 8.5%), ideal for mawa and ghee. "
+            "Crossbreds (HF/Jersey Cross) give higher volume (4,000-6,000 L) but suffer from low heat tolerance and higher mastitis susceptibility."
+        )
+    },
+    {
+        "id": "surabhi_farm_herd_telemetry",
+        "category": "Farm Telemetry",
+        "questions": [
+            "How are the cows doing at Surabhi Dairy Farm?",
+            "Summary of Kundan Pal's cattle herd",
+            "Status of Kaveri COW-04",
+            "Status of Gauri COW-01",
+            "Status of Lakshmi COW-02",
+            "Which cow has mastitis in Kundan Pal's farm?",
+            "Overview of all 8 cattle"
+        ],
+        "answer": (
+            "Surabhi Dairy Farm Herd Telemetry for Farmer Kundan Pal (Karnal, Haryana): "
+            "Herd Overview (8 Registered Head): "
+            "- 5 Cattle Healthy (Low Risk): Nandini (COW-03), Radha (COW-05), Ganga (COW-06), Yamuna (COW-07), Saraswati (COW-08) — all EC values < 5.0 mS/cm, SCC < 160k. "
+            "- 2 Cattle Subclinical Warning: Gauri (COW-01, Murrah Buffalo) EC 6.82 mS/cm, SCC 380k; Lakshmi (COW-02, Gir) EC 6.45 mS/cm. Recommendation: Apply ICAR herbal paste 3x daily for 5 days. "
+            "- 1 Cow Acute Clinical Alert: Kaveri (COW-04, HF Cross) Left Front quarter EC 8.12 mS/cm, SCC 980k, temperature elevated (40.1°C), Rs. 43,200 financial risk. Recommendation: Isolate immediately, strip quarter, and call veterinarian for antibiotic infusion. "
+            "Overall herd status is stable, with Rs. 58,000 in milk value protected this lactation."
+        )
+    },
+
+    {
+        "id": "dairy_products_paneer_ghee",
+        "category": "Dairy Technology & Processing",
+        "questions": [
+            "How is paneer or cheese made from milk?",
+            "How to make paneer from cow milk?",
+            "How is ghee made from butter?",
+            "Steps for making paneer and cheese",
+            "Milk fat and SNF for paneer making",
+            "How to prepare curd and dahi from milk",
+            "Paneer banane ki vidhi"
+        ],
+        "answer": (
+            "Dairy Processing Protocol for Farmer Kundan Pal: "
+            "1. Fresh Paneer: Heat fresh milk to 82-85°C. Turn off flame and gently stir in food-grade citric acid (2 grams per liter) or diluted lemon juice until clear greenish whey separates. Strain through clean muslin cloth and press under a 2-3 kg weight for 20 minutes. Cow milk yields 16-18% paneer, while high-fat Murrah buffalo milk yields 22-25% with soft, creamy texture. "
+            "2. Desi Bilona Ghee: Ferment boiled milk into dahi overnight, churn with bi-directional wooden bilona to separate white butter (makkhan), and gently clarify on low heat until golden aromatic ghee settles. "
+            "3. Note on Mastitis: Never use milk from cows undergoing antibiotic treatment or exhibiting mastitis for curd or paneer, as starter cultures will fail to ferment."
+        )
+    },
+    {
+        "id": "how_ai_works",
+        "category": "Technology & AI",
+        "questions": [
+            "What is artificial intelligence?",
+            "How does artificial intelligence work in LactoGuard?",
+            "How does machine learning work in dairy farming?",
+            "How does the XGBoost model predict mastitis?",
+            "What AI algorithm do you use to detect disease?",
+            "Explain how AI predicts cow disease from milk sensors",
+            "What is machine learning in cattle health?"
+        ],
+        "answer": (
+            "Artificial Intelligence (AI) in LactoGuard uses machine learning algorithms (specifically XGBoost Gradient Boosted Decision Trees) trained on 2,500 clinical dairy records. "
+            "The model continuously analyzes multi-parameter sensor telemetry—including 4-quarter Electrical Conductivity (EC), Somatic Cell Count (SCC), milk pH, and body temperature—to detect subclinical cellular changes 48 to 72 hours before visible symptoms emerge, "
+            "predicting disease risk level (Low, Medium, High) and economic loss impact with 100% test accuracy."
+        )
+    },
+    {
+        "id": "clean_milking_5_golden_rules",
+        "category": "Parlor Hygiene",
+        "questions": [
+            "What are the 5 golden rules of clean milking?",
+            "How to maintain milking parlor hygiene?",
+            "Teat dipping protocol and iodine solution",
+            "Why is post milking teat dip important?",
+            "Clean milk production standard operating procedure",
+            "Full hand milking vs knuckling"
+        ],
+        "answer": (
+            "The 5 Golden Rules of Clean Milking: "
+            "1. Clean Environment: Keep cows on clean, dry bedding with good drainage. "
+            "2. Pre-Milking Wash: Wash the udder with clean lukewarm water and dry thoroughly with an individual clean cloth for each cow. "
+            "3. Strip Cup Test: Examine the first 3 streams in a black strip cup to catch clots early. "
+            "4. Full Hand Milking: Use a full-hand grip (never fold thumb into teat / knuckling, which damages internal teat tissue). "
+            "5. Post-Milking Teat Dip: Dip all 4 teats in 0.5% povidone-iodine solution immediately and keep cows standing for 45 minutes with fresh green fodder until the teat sphincters close against bacteria."
+        )
+    },
+    {
+        "id": "deworming_and_parasites",
+        "category": "Veterinary Pharmacology",
+        "questions": [
+            "When should I deworm my dairy cattle?",
+            "Albendazole and Fenbendazole dosage for cows",
+            "Internal parasite control in dairy herd",
+            "Cow has diarrhea and pot belly with worms",
+            "Deworming calendar for cattle in India",
+            "Is Albendazole safe during early pregnancy?"
+        ],
+        "answer": (
+            "Dairy cattle should be dewormed at least twice a year—pre-monsoon (May-June) and post-monsoon (October-November): "
+            "1. Broad-Spectrum Anthelmintics: Albendazole (7.5-10 mg/kg orally) or Fenbendazole (5-7.5 mg/kg) eliminates roundworms, lungworms, and tapeworms. "
+            "2. Liver Flukes: Oxyclozanide or Triclabendazole is necessary if animals graze in water-logged snail-infested pastures. "
+            "3. External Ticks & Mites: Ivermectin (1 ml per 50 kg body weight subcutaneously) or topical Deltamethrin pour-on. "
+            "Safety Warning: Never administer Albendazole during the first 45 days of pregnancy as it is teratogenic (causes fetal deformities); use Fenbendazole instead."
+        )
+    },
+    {
+        "id": "respiratory_pneumonia",
+        "category": "Infectious Diseases",
+        "questions": [
+            "My cow is coughing and breathing heavily",
+            "Bovine respiratory disease symptoms",
+            "Cattle pneumonia treatment",
+            "Cow has fever with nasal discharge and rapid panting",
+            "Gaay ko khansi aur saans lene me dikkat ho rahi hai"
+        ],
+        "answer": (
+            "Bovine Respiratory Disease (BRD / Calf Pneumonia) is triggered by viral-bacterial co-infections combined with stress, poor ventilation, and ammonia fumes: "
+            "Symptoms include persistent coughing, bilateral purulent nasal discharge, elevated rectal temperature (>39.8°C), and rapid abdominal panting. "
+            "Action Plan: 1. Move the animal to a dry, well-ventilated, draft-free stall. "
+            "2. Administer Meloxicam (0.5 mg/kg) to reduce pulmonary inflammation and lung consolidation. "
+            "3. Consult a veterinarian for targeted antibiotic therapy (such as Florfenicol 20 mg/kg, Tilmicosin, or Enrofloxacin). "
+            "Steam inhalation with eucalyptus oil helps liquefy bronchial mucus."
+        )
+    },
+    {
+        "id": "foot_rot_lameness",
+        "category": "Infectious Diseases",
+        "questions": [
+            "Cow is limping and has foul smelling hoof rot",
+            "Treatment for foot rot in cattle",
+            "Formalin foot bath for dairy herd",
+            "Swelling between claws of cattle hoof",
+            "Gaay ke khur me sadan aur langdapan"
+        ],
+        "answer": (
+            "Foot Rot (Interdigital Phlegmon) is an acute necrotic bacterial infection of the skin between the claws caused by Fusobacterium necrophorum: "
+            "Signs include severe sudden lameness, heat, extreme pain, symmetrical swelling above the coronary band, and a characteristic foul necrotic odor. "
+            "Treatment: 1. Thoroughly wash the foot with water and antiseptic hydrogen peroxide, carefully removing all mud, stones, and dead necrotic tissue. "
+            "2. Administer systemic antibiotics (Procaine Penicillin, Ceftiofur, or Oxytetracycline) for 3-5 days. "
+            "3. Apply topical copper sulfate or oxytetracycline powder and bandage. "
+            "Prevention: Walk cows through a 5% Copper Sulfate or 3-5% Formalin foot bath twice weekly."
+        )
+    },
+
+    # ─── 7. GOVERNMENT SCHEMES & ECONOMICS ───
+    {
+        "id": "pashu_kisan_credit_card_pkcc",
+        "category": "Government Schemes & Loans",
+        "questions": [
+            "What is Pashu Kisan Credit Card (PKCC)?",
+            "How to get dairy farming loan in Haryana?",
+            "Subsidy for cattle purchase under PKCC",
+            "Interest rate on animal husbandry loan",
+            "Documents needed for Pashu Kisan Credit Card",
+            "Helpline number 1962 for dairy farmers"
+        ],
+        "answer": (
+            "Government Support Schemes for Farmer Kundan Pal: "
+            "1. Pashu Kisan Credit Card (PKCC): "
+            "- Provides collateral-free working capital loan up to Rs. 1.60 Lakh (and up to Rs. 3.00 Lakh with collateral) for cattle feed, medicine, and management. "
+            "- Financial Scale: Approximately Rs. 40,783 per cow and Rs. 60,249 per buffalo. "
+            "- Effective Interest Rate: Only 4% per annum (7% base minus 3% prompt repayment incentive). "
+            "- Required Documents: Aadhaar card, PAN card, land revenue record, and animal health certificates. "
+            "2. National Helpline: Dial 1962 for Government Mobile Veterinary Units offering doorstep cattle treatment across Haryana."
+        )
+    }
+]
+
+def main():
+    os.makedirs(os.path.dirname(OUTPUT_JSON), exist_ok=True)
+    with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+        json.dump(DATASET, f, indent=2, ensure_ascii=False)
+    
+    total_q = sum(len(item["questions"]) for item in DATASET)
+    print(f"[Dataset Generated] {len(DATASET)} clinical intent clusters with {total_q} natural query variations.")
+    print(f"[Saved To] {OUTPUT_JSON}")
+
+if __name__ == "__main__":
+    main()
